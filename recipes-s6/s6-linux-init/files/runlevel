@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+test "$#" -gt 0 || ( echo 'runlevel: fatal: missing argument' >&2 ; exit 100 )
+
+exec /bin/s6-rc -v2 -up change basic "$@"

@@ -1,0 +1,38 @@
+diff --git a/src/init/s6-linux-init.c b/src/init/s6-linux-init.c
+index 2e22850..2a60989 100644
+--- a/src/init/s6-linux-init.c
++++ b/src/init/s6-linux-init.c
+@@ -34,6 +34,7 @@
+ #define BANNER "\n  s6-linux-init version " S6_LINUX_INIT_VERSION "\n\n"
+ 
+ static int inns = 0 ;
++static int nokbd = 1 ;
+ static int nologger = 0 ;
+ static int notifpipe[2] ;
+ 
+@@ -69,7 +70,7 @@ static inline void wait_for_notif (int fd)
+ static void kbspecials (void)
+ {
+   int fd ;
+-  if (inns) return ;
++  if (inns || nokbd) return ;
+   fd = open("/dev/tty0", O_RDONLY | O_NOCTTY) ;
+   if (fd < 0)
+     strerr_warnwu2sys("open /dev/", "tty0 (kbrequest will not be handled)") ;
+@@ -138,7 +139,7 @@ int main (int argc, char const **argv, char const *const *envp)
+     subgetopt_t l = SUBGETOPT_ZERO ;
+     for (;;)
+     {
+-      int opt = subgetopt_r(argc, argv, "c:p:s:m:d:D:nNCB", &l) ;
++      int opt = subgetopt_r(argc, argv, "c:p:s:m:d:D:nNCBK", &l) ;
+       if (opt == -1) break ;
+       switch (opt)
+       {
+@@ -152,6 +153,7 @@ int main (int argc, char const **argv, char const *const *envp)
+         case 'N' : mounttype = 0 ; break ;
+         case 'C' : inns = 1 ; break ;
+         case 'B' : nologger = 1 ; break ;
++        case 'K' : nokbd = 1 ; break ;
+         default : dieusage() ;
+       }
+     }

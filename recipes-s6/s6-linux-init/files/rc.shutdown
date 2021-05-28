@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+exec >/dev/console 2>&1
+exec s6-rc -v2 -bda change
