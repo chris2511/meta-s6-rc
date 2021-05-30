@@ -1,0 +1,15 @@
+#!/bin/sh
+
+exec 2>&1
+DAEMON=/usr/sbin/dropbear
+DROPBEAR_PORT=22
+DROPBEAR_EXTRA_ARGS=
+
+set -e
+
+test ! -r /etc/default/dropbear || . /etc/default/dropbear
+
+test -z "$DROPBEAR_BANNER" || \
+  DROPBEAR_EXTRA_ARGS="$DROPBEAR_EXTRA_ARGS -b $DROPBEAR_BANNER"
+
+exec "$DAEMON" -F -E -R -p "$DROPBEAR_PORT" $DROPBEAR_EXTRA_ARGS
