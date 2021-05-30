@@ -1,0 +1,11 @@
+#!/bin/execlineb -P
+fdmove -c 2 1
+exec -c
+s6-ipcserver-socketbinder -b 0 -m -B /dev/log
+s6-setuidgid nobody
+# Readiness notification
+fdmove 1 3
+foreground { echo }
+fdmove -c 1 2
+
+ucspilogd

@@ -1,0 +1,4 @@
+/bin/sh -ec "
+/etc/init.d/sysfs.sh
+/sbin/sysctl -q -p /etc/sysctl*.conf || :
+"
