@@ -65,7 +65,9 @@ python do_s6rc_create_tree() {
     basetree = workdir + "/tree"
 
     if d.getVar("INIT_MANAGER") != "s6": return
-    valid_files_atomic = [ "timeout-up", "timeout-down", "dependencies" ]
+
+    valid_files_atomic = [ "timeout-up", "timeout-down",
+                           "dependencies", "bundles" ]
     # Bundles
     for bundle in (d.getVar('S6RC_BUNDLES', True) or "").split():
         tree = basetree + "/" + bundle
@@ -128,3 +130,46 @@ fakeroot do_s6rc_install_tree() {
 addtask s6rc_install_tree after do_install before do_package
 do_s6rc_install_tree[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
+python populate_packages_append () {
+
+    def s6rc_append_to_bundle(alist, atomic, var):
+        bundle_list = d.getVarFlag("%s_%s" % (var, atomic), "bundles") or ""
+        for bundle in bundle_list.split():
+            if bundle in alist:
+                alist[bundle].append(atomic)
+            else:
+                alist[bundle] = [ atomic ]
+
+    if d.getVar("INIT_MANAGER") != "s6": return
+
+    pkg = d.getVar("PN")
+    postinst = d.getVar('pkg_postinst_%s' % pkg)
+    if not postinst:
+        postinst = '#!/bin/sh\n'
+
+    all_bundles = { }
+
+    for longrun in (d.getVar('S6RC_LONGRUNS', True) or "").split():
+         s6rc_append_to_bundle(all_bundles, longrun, "S6RC_LONGRUN")
+
+    for oneshot in (d.getVar('S6RC_ONESHOTS', True) or "").split():
+        s6rc_append_to_bundle(all_bundles, oneshot, "S6RC_ONESHOT")
+
+    for sub_bundle in (d.getVar('S6RC_BUNDLES', True) or "").split():
+        s6rc_append_to_bundle(all_bundles, longrun, "S6RC_BUNDLE")
+
+    for bundle in all_bundles.keys():
+        postinst += """
+type="$(cat "$D{s6tree}/{bundle}/type" 2>/dev/null ||:)"
+case "$type" in
+  "") echo 'bundle' > "$D{s6tree}/{bundle}/type" ;;
+  bundle) ;;
+  *) echo "Type of "$D{s6tree}/{bundle}" must be 'bundle'" exit 1 ;;
+esac
+echo '{subs}' >> "$D{s6tree}/{bundle}/contents"
+
+""".format(s6tree = d.getVar("S6RC_TREE"), bundle = bundle, subs = "\n".join(all_bundles[bundle]))
+
+    d.setVar('pkg_postinst_%s' % pkg, postinst)
+    bb.warn("pkg " + pkg + " APP " + postinst)
+}

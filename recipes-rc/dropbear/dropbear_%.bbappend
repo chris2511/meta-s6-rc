@@ -7,4 +7,5 @@ inherit s6rc
 
 S6RC_LONGRUNS = "dropbear"
 S6RC_LONGRUN_dropbear[dependencies] = "mount-devpts mount-temp hostname"
+S6RC_LONGRUN_dropbear[bundles] = "network default"
 S6RC_LONGRUN_dropbear_log[user] = "logger"

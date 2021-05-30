@@ -44,7 +44,7 @@ This layer adds the `s6-rc.bbclass`, which allows to easily
 create new services with dependencies. It populates the
 `/etc/s6-rc/tree` directory with services declared by the following
 variables:
- - S6RC\_BUNDLES and S6RC\_BUNDLE\_%
+ - S6RC\_BUNDLES, S6RC\_BUNDLE\_% and S6RC\_BUNDLE\_%[ ]
  - S6RC\_ONESHOTS and S6RC\_ONESHOT\_%[ ]
  - S6RC\_LONGRUNS and S6RC\_LONGRUN\_%[ ] S6RC\_LONGRUN\_%\_log[ ]
 
@@ -73,6 +73,16 @@ will result in
 /etc/s6-rc-tree/bundleB/contents (which contains 'svx\nsvy\nbundleA')
 ```
 
+Adding bundles, oneshots and services to bundles defined in other recipes,
+for example the `default` bundle, can be achieved by the
+`S6RC_[LONGRUN|ONESHOT|BUNDLE]_<name>[bundles]` variable.
+Adding the longrun `dropbear` to the `default` and `network` bundle
+is done by
+```
+S6RC_LONGRUN_dropbear[bundles] = "default networking"
+```
+Non-existing bundles will be created on-the-fly.
+
 ### Atomic services
 
 All regular files recognized by s6-rc-compile can either be directly
@@ -84,7 +94,7 @@ and cumbersome to write in one line.
 
 ### Oneshots
 
-`S6RC_ONESHOTS` contains a space separated list of oneshot-names
+`S6RC_ONESHOTS` contains a space separated list of oneshot-names.
 `S6RC_ONESHOT_%[ ]` declares properties with % replaced by a oneshot-name
 
 Properties for oneshots are those documented in the [s6-rc-compile](https://skarnet.org/software/s6-rc/s6-rc-compile.html):
@@ -107,18 +117,18 @@ An existing file `${S}/mount-procsysdev.up` will be copied verbatim to
 
 ### Longruns
 
-`S6RC_LONGRUNS` contains a space separated list of longrun-names
+`S6RC_LONGRUNS` contains a space separated list of longrun-names.
 `S6RC_LONGRUN_%[ ]` declares properties with % replaced by a longrun-name
 
 The functionality and behavior is analog to the oneshots, just with the
 longrun properties.
 
 `S6RC_LONGRUN_%_log[]` properties are evaluated differently.
-If at least one of them exists a log service will be created
+If at least one of them exists, a log service will be created
 with the following property files:
- - name: <longrun-name>-log
+ - name: `<longrun-name>-log`
  - notification-fd: 3
- - consumer-for <longrun-name>
+ - consumer-for: `<longrun-name>`
  - dependencies: mount-temp
  - run: `umask {umask} s6-setuidgid {user} s6-log -d3 {script} {dir}`
    with {...} replaced by overrideable defaults:
@@ -147,3 +157,15 @@ After manually modifying the `/etc/s6-rc/tree` the rc-recompile script
 will do the `s6-rc-compile, s6-rc-update, symlink` magic
 as proposed in [Managing compiled databases](https://skarnet.org/software/s6-rc/faq.html#compiledmanagement)
 just that `rc-recompile` toggles between "compiledA" and "compiledB"
+
+### rc-config
+
+usage: `rc-config [enable|disable] <serviceX|oneshotY|bundleZ>`
+
+Adds or removes the given services, oneshots and bundles
+to the `default` bundle, which is the default bundle when booting.
+
+It first modifies the source tree in `/etc/s6-rc/tree/default/contents`,
+then adds or removes it to the compiled database by
+`s6-rc-bundle -f add default ...`
+and finally updates the live state by `s6-rc -up -v2 change default`.

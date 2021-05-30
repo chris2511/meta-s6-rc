@@ -14,7 +14,9 @@ SRC_URI = "file://init\
            file://syslogd.run\
            file://postinsts.up\
            file://rc-recompile\
+           file://rc-service\
 "
+
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
 S = "${WORKDIR}"
@@ -24,7 +26,7 @@ INIT_D_DIR = "${sysconfdir}/init.d"
 
 do_install() {
   install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default
-  install -m 0755 ${S}/init ${S}/rc-recompile ${D}${base_sbindir}
+  install -m 0755 ${S}/init ${S}/rc-recompile ${S}/rc-service ${D}${base_sbindir}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
   for initscript in devpts.sh sysfs.sh; do
     install -m 0755 ${RECIPE_SYSROOT}/${INIT_D_DIR}/${initscript} \
@@ -40,7 +42,7 @@ S6RC_BUNDLE_basic = "always hostname getty hwclock"
 S6RC_BUNDLE_network = "always hostname networking"
 
 # The default bundle mentions the services explicit and doesn't reference
-# other bundles to allow enabling and disabling of all services via rc-config
+# other bundles to allow enabling and disabling of all services via rc-service
 S6RC_BUNDLE_default = "always hostname networking getty hwclock"
 
 S6RC_ONESHOTS = "start hostname mount-procsysdev mount-temp mount-all \

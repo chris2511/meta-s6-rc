@@ -1,0 +1,65 @@
+#!/bin/sh -e
+
+usage()
+{
+  echo "Usage $0 [enable|disable] service1 ...."
+  exit 1
+}
+
+leave()
+{
+   test -n "$dir" && test -d "$dir" && rm -rf "$dir" || :
+   trap - EXIT
+}
+
+command="$1"
+shift
+
+test "$#" -ge 1 || usage
+
+if test "$1" = default; then
+  # protect the user from adding the
+  # default bundle to the default bundle
+  echo "Invalid service 'default'"
+  usage
+fi
+
+for service in "$@"; do
+  if test -z ${service%%*/*} || ! test -d "/etc/s6-rc/tree/$service"
+  then
+    echo "Unknown Service $service"
+    usage
+  fi
+done
+
+# Initialize runlevel config
+# A temporary directory is added (of course not in /tmp)
+# all entries in /etc/s6-rc/tree/default/contents
+# are created as empty files and then new entries are
+# 'touch'ed and disappearing entries are deleted with "rm"
+# Thisapproach is trivial to implement and idempotent:
+#  - Existing entries can be added without creating duplicates
+#  - Missing entries can be deleted without error
+#  - No need to play around with "sed" "awk" "sort" and friends
+
+dir=$(mktemp -d -p /var/run rc-change-XXXXXX)
+
+trap leave EXIT
+
+cd "$dir"
+xargs touch < /etc/s6-rc/tree/default/contents
+
+case "$command" in
+  enable)  touch "$@" ;;
+  disable) rm -f "$@" ;;
+  *)       usage
+esac
+
+# Modify the source tree
+ls -1 * > /etc/s6-rc/tree/default/contents
+
+# Modify the compiled database
+s6-rc-bundle -f add default *
+
+# Activate the new "default" bundle
+exec s6-rc -up -v2 change default
