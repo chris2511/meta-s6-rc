@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+cd /etc/s6-rc
+case $(readlink compiled 2> /dev/null) in
+  compiledA) new=compiledB ;;
+  *) new=compiledA ;;
+esac
+
+rm -rf "$new"
+
+s6-rc-compile -v 2 "$new" tree
+s6-rc-update -v 2 /etc/s6-rc/compiled
+
+ln -s "$new" "$new"/compiled
+sync
+mv "$new"/compiled .
+sync

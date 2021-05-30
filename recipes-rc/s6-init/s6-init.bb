@@ -4,7 +4,7 @@ SECTION = "base"
 DEPENDS = "initscripts"
 RDEPENDS_${PN} = "s6 s6-rc s6-linux-init s6-networking execline"
 
-PV = "1.0.0"
+PV = "1.1.0"
 PR = "r0"
 
 SRC_URI = "file://init\
@@ -13,6 +13,7 @@ SRC_URI = "file://init\
            file://mount-temp.up\
            file://syslogd.run\
            file://postinsts.up\
+           file://rc-recompile\
 "
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
 
@@ -23,7 +24,7 @@ INIT_D_DIR = "${sysconfdir}/init.d"
 
 do_install() {
   install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default
-  install -m 0755 ${S}/init ${D}${base_sbindir}
+  install -m 0755 ${S}/init ${S}/rc-recompile ${D}${base_sbindir}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
   for initscript in devpts.sh sysfs.sh; do
     install -m 0755 ${RECIPE_SYSROOT}/${INIT_D_DIR}/${initscript} \

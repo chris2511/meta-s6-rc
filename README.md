@@ -138,3 +138,12 @@ S6RC_LONGRUN_syslogd[notification-fd] = "3"
 S6RC_LONGRUN_syslogd_log[user] = "logger"
 ```
 The `syslogd/run` file is expected to be found in "${S}/syslogd.run"
+
+## Additional commands
+
+### rc-recompile
+
+After manually modifying the `/etc/s6-rc/tree` the rc-recompile script
+will do the `s6-rc-compile, s6-rc-update, symlink` magic
+as proposed in [Managing compiled databases](https://skarnet.org/software/s6-rc/faq.html#compiledmanagement)
+just that `rc-recompile` toggles between "compiledA" and "compiledB"
