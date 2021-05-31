@@ -1,0 +1,23 @@
+#!/bin/sh
+
+service="$(basename $0)"
+test -z "$S6_SERVICE_NAME" || service="$S6_SERVICE_NAME"
+
+if test "$service" = "s6-startstop"; then
+  echo "This script is intended to be called via a symlink and not directly"
+  exit 1
+fi
+
+case "$1" in
+  enable)  exec /sbin/rc-service enable "$service" ;;
+  disable) exec /sbin/rc-service disable "$service" ;;
+  start)   exec /bin/s6-rc -v2 "-u" change "$service" ;;
+  stop)    exec /bin/s6-rc -v2 "-d" change "$service" ;;
+  restart) exec /bin/s6-svc -ru /service/"$service" ;;
+  status)  exec /bin/s6-svstat /service/"$service" ;;
+  pid)     exec /bin/s6-svstat -o pid /service/"$service" ;;
+  *)
+    echo "Usage $0 [enable|disable|start|stop|restart|status|pid]"
+    exit 1
+    ;;
+esac

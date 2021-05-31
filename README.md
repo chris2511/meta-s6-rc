@@ -47,10 +47,16 @@ variables:
  - S6RC\_BUNDLES, S6RC\_BUNDLE\_% and S6RC\_BUNDLE\_%[ ]
  - S6RC\_ONESHOTS and S6RC\_ONESHOT\_%[ ]
  - S6RC\_LONGRUNS and S6RC\_LONGRUN\_%[ ] S6RC\_LONGRUN\_%\_log[ ]
+ - S6RC\_INITD\_SYMLINKS
 
 `s6-init.bb` shows how to use them in practice.
 Please read/know about the concepts documented in
 [s6-rc-compile](https://skarnet.org/software/s6-rc/s6-rc-compile.html)
+
+The S6RC\_INITD\_SYMLINKS variable declares a space separated
+list of service names that will be put as symlinks to `s6-startstop`
+into /etc/init.d/. This enables SysV/Systemd feeling by providing:
+`/etc/init.d/<service> [start|stop|restart|enable|disable|status|pid]`
 
 ### Bundles
 

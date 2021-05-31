@@ -15,6 +15,7 @@ SRC_URI = "file://init\
            file://postinsts.up\
            file://rc-recompile\
            file://rc-service\
+           file://s6-startstop\
 "
 
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
@@ -27,6 +28,7 @@ INIT_D_DIR = "${sysconfdir}/init.d"
 do_install() {
   install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default
   install -m 0755 ${S}/init ${S}/rc-recompile ${S}/rc-service ${D}${base_sbindir}
+  install -m 0755 ${S}/s6-startstop ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
   for initscript in devpts.sh sysfs.sh; do
     install -m 0755 ${RECIPE_SYSROOT}/${INIT_D_DIR}/${initscript} \

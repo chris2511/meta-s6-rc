@@ -171,5 +171,13 @@ echo '{subs}' >> "$D{s6tree}/{bundle}/contents"
 """.format(s6tree = d.getVar("S6RC_TREE"), bundle = bundle, subs = "\n".join(all_bundles[bundle]))
 
     d.setVar('pkg_postinst_%s' % pkg, postinst)
-    bb.warn("pkg " + pkg + " APP " + postinst)
+}
+
+do_install_append() {
+  if test "${INIT_MANAGER}" = "s6"; then
+    for link in ${S6RC_INITD_SYMLINKS}; do
+      rm -f "${D}/etc/init.d/${link}"
+      ln -sf s6-startstop ${D}/etc/init.d/${link}
+    done
+  fi
 }
