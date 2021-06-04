@@ -1,0 +1,24 @@
+From 32b03b93bc6b31511dca23a881d00acf6cc928e2 Mon Sep 17 00:00:00 2001
+From: Christian Hohnstaedt <christian@hohnstaedt.de>
+Date: Thu, 3 Jun 2021 11:17:26 +0200
+Subject: [PATCH] s6-rc-compile: Fix setting of flag-essential
+
+Don't set the bitposition (which is 0 for 'flag-essential')
+to the flags, but the bit at the position.
+---
+ src/s6-rc/s6-rc-compile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/s6-rc/s6-rc-compile.c b/src/s6-rc/s6-rc-compile.c
+index 66f886e..429a454 100644
+--- a/src/s6-rc/s6-rc-compile.c
++++ b/src/s6-rc/s6-rc-compile.c
+@@ -368,7 +368,7 @@ static uint32_t read_flags (int dfd, char const *srcdir, char const *name)
+       if (errno != ENOENT)
+         strerr_diefu6sys(111, "read ", srcdir, "/", name, "/", files[i]) ;
+     }
+-    else flags |= i ;
++    else flags |= 1 << i ;
+   }
+   return flags ;
+ }

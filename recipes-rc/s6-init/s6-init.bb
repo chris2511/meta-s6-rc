@@ -38,14 +38,15 @@ do_install() {
 		 ${D}${sysconfdir}/default
 }
 
-S6RC_BUNDLES = "always basic network default"
-S6RC_BUNDLE_always = "watchdog klogd syslogd"
-S6RC_BUNDLE_basic = "always hostname getty hwclock"
-S6RC_BUNDLE_network = "always hostname networking"
+S6RC_BUNDLES = "basic network default"
+S6RC_BUNDLE_basic = "hostname getty hwclock"
+S6RC_BUNDLE_network = "hostname networking"
+
+S6RC_ESSENTIALS = "watchdog mount-procsysdev"
 
 # The default bundle mentions the services explicit and doesn't reference
 # other bundles to allow enabling and disabling of all services via rc-service
-S6RC_BUNDLE_default = "always hostname networking getty hwclock"
+S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd"
 
 S6RC_ONESHOTS = "start hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock ptest postinsts"

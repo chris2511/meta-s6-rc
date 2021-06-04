@@ -164,12 +164,26 @@ type="$(cat "$D{s6tree}/{bundle}/type" 2>/dev/null ||:)"
 case "$type" in
   "") echo 'bundle' > "$D{s6tree}/{bundle}/type" ;;
   bundle) ;;
-  *) echo "Type of "$D{s6tree}/{bundle}" must be 'bundle'" exit 1 ;;
+  *) echo "Type of "$D{s6tree}/{bundle}" must be 'bundle'"
+     exit 1 ;;
 esac
 echo '{subs}' >> "$D{s6tree}/{bundle}/contents"
 
 """.format(s6tree = d.getVar("S6RC_TREE"), bundle = bundle, subs = "\n".join(all_bundles[bundle]))
 
+    essentials = d.getVar('S6RC_ESSENTIALS', True)
+    if essentials:
+        postinst += """
+for essential in {essentials}; do
+  if ! test -d "$D{s6tree}/${{essential}}"; then
+    echo "Service ${{essential}} does not exist in {s6tree}"
+    exit 1
+  fi
+  : > "$D{s6tree}/${{essential}}/flag-essential"
+done
+""".format(s6tree = d.getVar("S6RC_TREE"), essentials = essentials)
+
+    bb.warn("POSTINST for %s:\n%s" % (pkg, postinst));
     d.setVar('pkg_postinst_%s' % pkg, postinst)
 }
 
