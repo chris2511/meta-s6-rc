@@ -1,0 +1,45 @@
+From a651a537c42ad8cfca79aaf8267b7b162cec1d3b Mon Sep 17 00:00:00 2001
+From: Christian Hohnstaedt <christian@hohnstaedt.de>
+Date: Sun, 6 Jun 2021 13:59:41 +0200
+Subject: [PATCH] network.c: Add S6 readiness notification
+
+If the NOTIFICATION_FD environment variable is set,
+it is expected to contain the notification file descriptor.
+It writes a newline and closes the fd.
+---
+ src/network.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/src/network.c b/src/network.c
+index dc55169..7502aca 100644
+--- a/src/network.c
++++ b/src/network.c
+@@ -438,6 +438,19 @@ static int network_socket_activation_from_env(server *srv) {
+     return rc;
+ }
+ 
++static void i_am_ready() {
++	int fd;
++	char *notification_fd = getenv("NOTIFICATION_FD");
++	if (!notification_fd)
++		return;
++	fd = atoi(notification_fd);
++	unsetenv("NOTIFICATION_FD");
++	if (fd <= 0) /* sanity */
++		return;
++	write(fd, "\n", 1);
++	close(fd);
++}
++
+ int network_init(server *srv, int stdin_fd) {
+       #ifdef __WIN32
+ 	WSADATA wsaData;
+@@ -512,7 +525,7 @@ int network_init(server *srv, int stdin_fd) {
+ 			network_srv_sockets_append(srv, srv_socket);
+ 		}
+ 	}
+-
++	i_am_ready();
+ 	return 0;
+ }
+ 
