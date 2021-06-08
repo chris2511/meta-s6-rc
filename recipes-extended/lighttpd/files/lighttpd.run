@@ -1,0 +1,10 @@
+#!/bin/execlineb -P
+
+fdmove 3 0
+s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-lighttpd80
+fdmove 4 0
+s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-lighttpd443
+fdswap 3 0
+export LISTEN_FDS 2
+getpid LISTEN_PID
+lighttpd -D -f /etc/lighttpd/lighttpd.conf
