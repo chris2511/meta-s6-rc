@@ -32,7 +32,7 @@ and set up the system:
     and thus replaces itself for the next boot.
  3. Moves the created [halt|poweroff|reboot|telinit].s6
     scripts to `/sbin/` and activates them via update-alternatives.
- 4. Run `s6-rc-compile` on the current service tree in `/etc/s6-rc/tree´.
+ 4. Run `s6-rc-compile` on the current service tree in `/etc/s6-rc/tree`.
  5. Exec into the new `/sbin/init`, which execs into `s6-linux-init`
 
 ## Documentation
@@ -40,7 +40,7 @@ and set up the system:
 The S6 system itself is thoroughly documented by its author
 and will not be repeated here.
 
-This layer adds the `s6-rc.bbclass`, which allows to easily
+This layer adds the `s6rc.bbclass`, which allows to easily
 create new services with dependencies. It populates the
 `/etc/s6-rc/tree` directory with services declared by the following
 variables:
@@ -48,6 +48,7 @@ variables:
  - S6RC\_ONESHOTS and S6RC\_ONESHOT\_%[ ]
  - S6RC\_LONGRUNS and S6RC\_LONGRUN\_%[ ] S6RC\_LONGRUN\_%\_log[ ]
  - S6RC\_INITD\_SYMLINKS
+ - S6RC\_ESSENTIALS
 
 `s6-init.bb` shows how to use them in practice.
 Please read/know about the concepts documented in
@@ -55,8 +56,12 @@ Please read/know about the concepts documented in
 
 The S6RC\_INITD\_SYMLINKS variable declares a space separated
 list of service names that will be put as symlinks to `s6-startstop`
-into /etc/init.d/. This enables SysV/Systemd feeling by providing:
+to `/etc/init.d/`. This enables SysV/Systemd feeling by providing:
 `/etc/init.d/<service> [start|stop|restart|enable|disable|status|pid]`
+
+The S6RC\_ESSENTIALS declares a space separated
+list of essential services that will not be stopped during service
+transition.
 
 ### Bundles
 
@@ -69,17 +74,17 @@ Example:
 ```
 S6RC_BUNDLES = "bundleA bundleB"
 S6RC_BUNDLE_bundleA = "service1 service2"
-S6RC_BUNDLE_bundleB = "svx svy bundleA"
+S6RC_BUNDLE_bundleB = "svcx svcy bundleA"
 ```
 will result in
 ```
-/etc/s6-rc-tree/bundleA/type (which contains 'bundle')
-/etc/s6-rc-tree/bundleA/contents (which contains 'service1\nservice2')
-/etc/s6-rc-tree/bundleB/type (which contains 'bundle')
-/etc/s6-rc-tree/bundleB/contents (which contains 'svx\nsvy\nbundleA')
+/etc/s6-rc/tree/bundleA/type (which contains 'bundle')
+/etc/s6-rc/tree/bundleA/contents (which contains 'service1\nservice2')
+/etc/s6-rc/tree/bundleB/type (which contains 'bundle')
+/etc/s6-rc/tree/bundleB/contents (which contains 'svx\nsvy\nbundleA')
 ```
 
-Adding bundles, oneshots and services to bundles defined in other recipes,
+Adding bundles, oneshots and longruns to bundles defined in other recipes,
 for example the `default` bundle, can be achieved by the
 `S6RC_[LONGRUN|ONESHOT|BUNDLE]_<name>[bundles]` variable.
 Adding the longrun `dropbear` to the `default` and `network` bundle
@@ -113,13 +118,13 @@ S6RC_ONESHOT_mount-procsysdev[dependencies] = "start"
 ```
 will result in
 ```
-/etc/s6-rc-tree/start/type (which contains 'oneshot')
-/etc/s6-rc-tree/start/up (which contains 'echo "init-stage2 starting."')
-/etc/s6-rc-tree/mount-procsysdev/type (which contains 'oneshot')
-/etc/s6-rc-tree/mount-procsysdev/dependencies (which contains 'start')
+/etc/s6-rc/tree/start/type (which contains 'oneshot')
+/etc/s6-rc/tree/start/up (which contains 'echo "init-stage2 starting."')
+/etc/s6-rc/tree/mount-procsysdev/type (which contains 'oneshot')
+/etc/s6-rc/tree/mount-procsysdev/dependencies (which contains 'start')
 ```
 An existing file `${S}/mount-procsysdev.up` will be copied verbatim to
-`/etc/s6-rc-tree/mount-procsysdev/up`
+`/etc/s6-rc/tree/mount-procsysdev/up`
 
 ### Longruns
 
@@ -175,3 +180,19 @@ It first modifies the source tree in `/etc/s6-rc/tree/default/contents`,
 then adds or removes it to the compiled database by
 `s6-rc-bundle -f add default ...`
 and finally updates the live state by `s6-rc -up -v2 change default`.
+
+### s6-startstop
+
+The script `/etc/init.d/s6-startstop` is never called directly, but called
+via a symlink, which determines the service to act on.
+It provides the following subcommands:
+ - *enable:* permanently enable and start the service
+ - *disable:* permanently stop and disable the service
+ - *start:* temporarily start the service and all its dependencies until
+   reboot. After a reboot it returns to the enabled/disabled state
+ - *stop:* temporarily stop the service and all its dependencies until reboot.
+   After a reboot it returns to the enabled/disabled state
+ - *restart:* same as start, but terminates the service
+   if it is already running.
+ - *status:* prints the `s6-svstat` output
+ - *pid:* prints the pid of the service
