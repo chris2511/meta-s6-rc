@@ -7,6 +7,8 @@ SYSDEPS_class-native = "${STAGING_DIR_NATIVE}"
 do_configure() {
   ${S}/configure --enable-static --libdir=${prefix}/lib --enable-static-libc \
                  --includedir=${prefix}/include --prefix=${base_prefix} \
+		 --with-include=${SYSDEPS}/${prefix}/include \
+		 --with-lib=${SYSDEPS}/${prefix}/lib \
                  --with-sysdeps=${SYSDEPS}/usr/lib/skalibs/sysdeps
 }
 

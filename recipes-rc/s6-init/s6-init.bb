@@ -49,10 +49,10 @@ S6RC_ESSENTIALS = "watchdog mount-procsysdev"
 S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd"
 
 S6RC_ONESHOTS = "start hostname mount-procsysdev mount-temp mount-all \
-		mount-devpts networking udevadm hwclock ptest postinsts"
+		mount-devpts networking udevadm hwclock postinsts"
 
 S6RC_ONESHOT_start[up] = 'echo "init-stage2 starting."'
-S6RC_ONESHOT_hostname[up] = "hostname -F /etc/hostname"
+S6RC_ONESHOT_hostname[up] = "redirfd -r 0 /etc/hostname withstdinas -E HOST hostname $HOST"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_mount-procsysdev[dependencies] = "start"
 S6RC_ONESHOT_mount-temp[dependencies] = "start"
@@ -95,6 +95,6 @@ S6RC_LONGRUN_syslogd_log[user] = "logger"
 S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { /sbin/watchdog -F /dev/watchdog0 } s6-svc -d ."
 S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
 
-S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /sbin/getty -L 0 console 2>&1"
+S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console 2>&1"
 S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname"
 S6RC_LONGRUN_getty[down-signal] = "9"

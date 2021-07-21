@@ -1,6 +1,6 @@
 #!/bin/sh
 
-test "$#" -lt 2 || shift
+test "$#" -lt 2 || shift
 
 s6-rc-init /run/service
 exec /etc/s6-linux-init/current/scripts/runlevel "$@"
