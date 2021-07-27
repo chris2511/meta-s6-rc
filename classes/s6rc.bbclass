@@ -183,13 +183,13 @@ for essential in {essentials}; do
 done
 """.format(s6tree = d.getVar("S6RC_TREE"), essentials = essentials)
 
-    bb.warn("POSTINST for %s:\n%s" % (pkg, postinst));
     d.setVar('pkg_postinst_%s' % pkg, postinst)
 }
 
 do_install_append() {
   if test "${INIT_MANAGER}" = "s6"; then
     for link in ${S6RC_INITD_SYMLINKS}; do
+      mkdir -p  "${D}/etc/init.d"
       rm -f "${D}/etc/init.d/${link}"
       ln -sf s6-startstop ${D}/etc/init.d/${link}
     done
