@@ -24,7 +24,6 @@ S6RC_ONESHOTS = "lighttpd_sockets https_keygen"
 
 S6RC_LONGRUNS = "lighttpd"
 S6RC_LONGRUN_lighttpd[dependencies] = "mount-devpts mount-temp hostname lighttpd_sockets https_keygen"
-S6RC_LONGRUN_lighttpd[notification-fd] = "3"
 S6RC_LONGRUN_lighttpd[bundles] = "network default"
 S6RC_LONGRUN_lighttpd_log[user] = "logger"
 S6RC_INITD_SYMLINKS = "${S6RC_LONGRUNS}"
