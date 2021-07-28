@@ -55,8 +55,8 @@ python do_s6rc_create_tree() {
                 if sfile == "run" and files[sfile][0:2] != "#!":
                     # inline run scripts are expected to be execlineb
                     content.insert(0, "#!/bin/execlineb -P")
-                if sfile != "bundles":
-                    array_to_file(tree + "/" + sfile, content)
+
+                array_to_file(tree + "/" + sfile, content)
 
             elif sfile in mandatory:
                 raise bb.parse.SkipRecipe("Error with S6RC_*_%s: '%s' files are mandatory. Either as S6RC_*_%s[%s] or as source file '%s.%s'." % (name, sfile, name, sfile, name, sfile))
@@ -66,8 +66,8 @@ python do_s6rc_create_tree() {
 
     if d.getVar("INIT_MANAGER") != "s6": return
 
-    valid_files_atomic = [ "timeout-up", "timeout-down",
-                           "dependencies", "bundles" ]
+    valid_files_atomic = [ "timeout-up", "timeout-down", "flag-essential",
+                           "dependencies", "bundles", "influences" ]
     # Bundles
     for bundle in (d.getVar('S6RC_BUNDLES', True) or "").split():
         tree = basetree + "/" + bundle
@@ -130,68 +130,19 @@ fakeroot do_s6rc_install_tree() {
 addtask s6rc_install_tree after do_install before do_package
 do_s6rc_install_tree[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
-python populate_packages_append () {
-
-    def s6rc_append_to_bundle(alist, atomic, var):
-        bundle_list = d.getVarFlag("%s_%s" % (var, atomic), "bundles") or ""
-        for bundle in bundle_list.split():
-            if bundle in alist:
-                alist[bundle].append(atomic)
-            else:
-                alist[bundle] = [ atomic ]
-
-    if d.getVar("INIT_MANAGER") != "s6": return
-
-    pkg = d.getVar("PN")
-    postinst = d.getVar('pkg_postinst_%s' % pkg)
-    if not postinst:
-        postinst = '#!/bin/sh\n'
-
-    all_bundles = { }
-
-    for longrun in (d.getVar('S6RC_LONGRUNS', True) or "").split():
-         s6rc_append_to_bundle(all_bundles, longrun, "S6RC_LONGRUN")
-
-    for oneshot in (d.getVar('S6RC_ONESHOTS', True) or "").split():
-        s6rc_append_to_bundle(all_bundles, oneshot, "S6RC_ONESHOT")
-
-    for sub_bundle in (d.getVar('S6RC_BUNDLES', True) or "").split():
-        s6rc_append_to_bundle(all_bundles, longrun, "S6RC_BUNDLE")
-
-    for bundle in all_bundles.keys():
-        postinst += """
-type="$(cat "$D{s6tree}/{bundle}/type" 2>/dev/null ||:)"
-case "$type" in
-  "") echo 'bundle' > "$D{s6tree}/{bundle}/type" ;;
-  bundle) ;;
-  *) echo "Type of "$D{s6tree}/{bundle}" must be 'bundle'"
-     exit 1 ;;
-esac
-echo '{subs}' >> "$D{s6tree}/{bundle}/contents"
-
-""".format(s6tree = d.getVar("S6RC_TREE"), bundle = bundle, subs = "\n".join(all_bundles[bundle]))
-
-    essentials = d.getVar('S6RC_ESSENTIALS', True)
-    if essentials:
-        postinst += """
-for essential in {essentials}; do
-  if ! test -d "$D{s6tree}/${{essential}}"; then
-    echo "Service ${{essential}} does not exist in {s6tree}"
-    exit 1
-  fi
-  : > "$D{s6tree}/${{essential}}/flag-essential"
-done
-""".format(s6tree = d.getVar("S6RC_TREE"), essentials = essentials)
-
-    d.setVar('pkg_postinst_%s' % pkg, postinst)
-}
-
 do_install_append() {
   if test "${INIT_MANAGER}" = "s6"; then
     for link in ${S6RC_INITD_SYMLINKS}; do
-      mkdir -p  "${D}/etc/init.d"
+      mkdir -p "${D}/etc/init.d"
       rm -f "${D}/etc/init.d/${link}"
       ln -sf s6-startstop ${D}/etc/init.d/${link}
     done
+  fi
+}
+
+pkg_postinst_${PN}_append () {
+  if test "${INIT_MANAGER}" = "s6"; then
+    cd $D${S6RC_BASEDIR}/tree
+    $D/sbin/rc-finish ${S6RC_LONGRUNS} ${S6RC_ONESHOTS} ${S6RC_BUNDLES}
   fi
 }

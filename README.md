@@ -47,7 +47,6 @@ variables:
  - S6RC\_ONESHOTS and S6RC\_ONESHOT\_%[ ]
  - S6RC\_LONGRUNS and S6RC\_LONGRUN\_%[ ] S6RC\_LONGRUN\_%\_log[ ]
  - S6RC\_INITD\_SYMLINKS
- - S6RC\_ESSENTIALS
 
 `s6-init.bb` shows how to use them in practice.
 Please read/know about the concepts documented in
@@ -57,10 +56,6 @@ The S6RC\_INITD\_SYMLINKS variable declares a space separated
 list of service names that will be put as symlinks to `s6-startstop`
 to `/etc/init.d/`. This enables SysV/Systemd feeling by providing:
 `/etc/init.d/<service> [start|stop|restart|enable|disable|status|pid]`
-
-The S6RC\_ESSENTIALS declares a space separated
-list of essential services that will not be stopped during service
-transition.
 
 ### Bundles
 
@@ -101,6 +96,11 @@ or provided as `<service-name>.<property>` file.
 In this example a `runner-a.dependencies` will be used as runner-a/dependencies file verbatim.
 This is especially useful for `up` and `run` files, which may become lengthy
 and cumbersome to write in one line.
+
+All atomic services may additionally contain the special file `influences`
+which is the inverse of `dependencies`:
+All atomics listed in `influences` of an other atomic
+will depend on the other atomic.
 
 ### Oneshots
 

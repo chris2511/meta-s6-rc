@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# must be called with cwd==/etc/s6-rc/tree
+
+exec >>LOGG
+exec 2>&1 
+set -x
+pwd
+
+for service in $@; do
+  test -d "$service" || exit 1
+  if test -f "${service}/bundles"; then
+    for bundle in $(cat "${service}/bundles"); do
+      test -d "$bundle" || mkdir "$bundle"
+      test -r "${bundle}/type" || echo "bundle" > "${bundle}/type"
+      test $(cat "${bundle}/type") = "bundle" || exit 1
+
+      echo "$service" >> "${bundle}/contents"
+    done
+  fi
+  if test -f "${service}/influences"; then
+    for influence in $(cat "${service}/influences"); do
+      test -d "$influence" || exit 1
+      echo "$service" >> "$influence"/dependencies
+    done
+  fi
+done

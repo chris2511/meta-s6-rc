@@ -15,6 +15,7 @@ SRC_URI = "file://init\
            file://postinsts.up\
            file://rc-recompile\
            file://rc-service\
+           file://rc-finish\
            file://s6-startstop\
 "
 
@@ -27,7 +28,8 @@ INIT_D_DIR = "${sysconfdir}/init.d"
 
 do_install() {
   install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default
-  install -m 0755 ${S}/init ${S}/rc-recompile ${S}/rc-service ${D}${base_sbindir}
+  install -m 0755 ${S}/init ${S}/rc-recompile ${S}/rc-service ${S}/rc-finish\
+                    ${D}${base_sbindir}
   install -m 0755 ${S}/s6-startstop ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
   for initscript in devpts.sh sysfs.sh; do
@@ -42,11 +44,9 @@ S6RC_BUNDLES = "basic network default"
 S6RC_BUNDLE_basic = "hostname getty hwclock"
 S6RC_BUNDLE_network = "hostname networking"
 
-S6RC_ESSENTIALS = "watchdog mount-procsysdev"
-
-# The default bundle mentions the services explicit and doesn't reference
+# The default bundle lists the services explicit and doesn't reference
 # other bundles to allow enabling and disabling of all services via rc-service
-S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd"
+S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd watchdog"
 
 S6RC_ONESHOTS = "start hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock postinsts"
@@ -55,6 +55,7 @@ S6RC_ONESHOT_start[up] = 'echo "init-stage2 starting."'
 S6RC_ONESHOT_hostname[up] = "redirfd -r 0 /etc/hostname withstdinas -E HOST hostname $HOST"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_mount-procsysdev[dependencies] = "start"
+S6RC_ONESHOT_mount-procsysdev[flag-essential] = ""
 S6RC_ONESHOT_mount-temp[dependencies] = "start"
 
 S6RC_ONESHOT_mount-devpts[up] = "/etc/init.d/devpts.sh"
@@ -94,6 +95,7 @@ S6RC_LONGRUN_syslogd_log[user] = "logger"
 
 S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { /sbin/watchdog -F /dev/watchdog0 } s6-svc -d ."
 S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
+S6RC_LONGRUN_watchdog[flag-essential] = ""
 
 S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console 2>&1"
 S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname"
