@@ -1,6 +1,7 @@
-if -n { test -f ${CERT} }
-  define CERT /etc/lighttpd/https-cert.pem
-  define CONF /etc/lighttpd/openssl-cert.conf
+define CERT /etc/lighttpd/https-cert.pem
+define CONF /etc/lighttpd/openssl-cert.conf
+
+if -nt { test -f ${CERT} }
   execline-umask 0277
 
   redirfd -w 1 ${CERT}.tmp
