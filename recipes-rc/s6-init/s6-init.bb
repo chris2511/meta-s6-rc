@@ -47,16 +47,15 @@ S6RC_BUNDLE_network = "hostname networking"
 # The default bundle lists the services explicit and doesn't reference
 # other bundles to allow enabling and disabling of all services via rc-service
 S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd watchdog"
+S6RC_BUNDLE_default += "postinsts"
 
-S6RC_ONESHOTS = "start hostname mount-procsysdev mount-temp mount-all \
+S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock postinsts"
 
 S6RC_ONESHOT_start[up] = 'echo "init-stage2 starting."'
 S6RC_ONESHOT_hostname[up] = "redirfd -r 0 /etc/hostname withstdinas -E HOST hostname $HOST"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
-S6RC_ONESHOT_mount-procsysdev[dependencies] = "start"
 S6RC_ONESHOT_mount-procsysdev[flag-essential] = ""
-S6RC_ONESHOT_mount-temp[dependencies] = "start"
 
 S6RC_ONESHOT_mount-devpts[up] = "/etc/init.d/devpts.sh"
 S6RC_ONESHOT_mount-devpts[dependencies] = "mount-procsysdev"
