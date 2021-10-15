@@ -50,7 +50,7 @@ S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd watchdog"
 S6RC_BUNDLE_default += "postinsts"
 
 S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
-		mount-devpts networking udevadm hwclock postinsts"
+		mount-devpts networking udevadm hwclock postinsts ptest"
 
 S6RC_ONESHOT_start[up] = 'echo "init-stage2 starting."'
 S6RC_ONESHOT_hostname[up] = "redirfd -r 0 /etc/hostname withstdinas -E HOST hostname $HOST"
@@ -78,6 +78,9 @@ S6RC_ONESHOT_ptest[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_ptest[up] = "foreground { ptest-runner } poweroff"
 
 S6RC_ONESHOT_postinsts[dependencies] = "mount-all"
+
+S6RC_ONESHOT_ptest[dependencies] = "mount-procsysdev"
+S6RC_ONESHOT_ptest[up] = "foreground { redirfd -w 1 /ptest.log ptest-runner } poweroff"
 
 ################## Long running services with logger
 S6RC_LONGRUNS = "udevd klogd syslogd getty watchdog"
