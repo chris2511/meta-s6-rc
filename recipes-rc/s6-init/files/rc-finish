@@ -2,13 +2,9 @@
 
 # must be called with cwd==/etc/s6-rc/tree
 
-exec >>LOGG
-exec 2>&1 
-set -x
-pwd
-
 for service in $@; do
   test -d "$service" || exit 1
+  # Add service to any bundle listed in "${service}/bundles"
   if test -f "${service}/bundles"; then
     for bundle in $(cat "${service}/bundles"); do
       test -d "$bundle" || mkdir "$bundle"
@@ -18,6 +14,7 @@ for service in $@; do
       echo "$service" >> "${bundle}/contents"
     done
   fi
+  # Add service as dependency to any service listed in "${service}/influence"
   if test -f "${service}/influences"; then
     for influence in $(cat "${service}/influences"); do
       test -d "$influence" || exit 1
