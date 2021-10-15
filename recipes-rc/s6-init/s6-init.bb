@@ -1,5 +1,5 @@
 SUMMARY = "s6 init scripts"
-LICENSE = "MPL-2.0"
+LICENSE = "MIT"
 SECTION = "base"
 DEPENDS = "initscripts"
 RDEPENDS_${PN} = "s6 s6-rc s6-linux-init s6-networking execline"
@@ -19,7 +19,7 @@ SRC_URI = "file://init\
            file://s6-startstop\
 "
 
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MPL-2.0;md5=815ca599c9df247a0c7f619bab123dad"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 S = "${WORKDIR}"
 
