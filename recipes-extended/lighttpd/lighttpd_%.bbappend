@@ -21,7 +21,7 @@ do_install_append() {
 inherit s6rc
 
 S6RC_ONESHOTS = "lighttpd_sockets https_keygen"
-S6RC_ONESHOT_https_keygen[timeout-up] = "60000"
+S6RC_ONESHOT_https_keygen[timeout-up] = "600000"
 
 S6RC_LONGRUNS = "lighttpd"
 S6RC_LONGRUN_lighttpd[dependencies] = "mount-devpts mount-temp hostname lighttpd_sockets https_keygen"
