@@ -5,10 +5,9 @@ FILES_${PN} += "${S6RC_TREE}"
 
 inherit useradd
 USERADD_PACKAGES = "${PN}"
-GROUPADD_PARAM_${PN} = "-r logger"
-USERADD_PARAM_${PN} = "--system --home ${localstatedir}/lib/dbus \
+USERADD_PARAM_${PN}_prepend = " --system --home ${localstatedir}/log \
                             --no-create-home --shell /bin/false \
-                            --gid logger logger"
+                            --user-group logger;"
 
 # This class and its use is documented in the README.md
 python do_s6rc_create_tree() {
