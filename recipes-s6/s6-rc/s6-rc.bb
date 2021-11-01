@@ -4,7 +4,7 @@ HOMEPAGE = "http://skarnet.org/software/${BPN}/"
 LICENSE = "ISC"
 SECTION = "base"
 DEPENDS = "skalibs s6 execline"
-RDEPENDS_${PN} = "s6 s6-linux-init execline"
+RDEPENDS:${PN} = "s6 s6-linux-init execline"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c2becd2c2579701b65222d136ce1c138"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"

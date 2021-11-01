@@ -18,6 +18,6 @@ do_configure() {
 		--libdir=/usr/lib --enable-static-libc --prefix=${base_prefix}
 }
 
-do_configure_class-native() {
+do_configure:class-native() {
     ${S}/configure --prefix=${base_prefix} --includedir=${prefix}/include
 }

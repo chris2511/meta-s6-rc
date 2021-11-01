@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += "\
   file://lighttpd_sockets.up\
@@ -9,9 +9,9 @@ SRC_URI += "\
   file://openssl-cert.conf\
 "
 
-PACKAGECONFIG_append = "openssl"
+PACKAGECONFIG:append = "openssl"
 
-do_install_append() {
+do_install:append() {
   install -d ${D}${sysconfdir}/lighttpd.d ${D}${sysconfdir}/lighttpd
   install -m 0644 ${WORKDIR}/ssl.conf ${WORKDIR}/socket_activation.conf \
 		${D}${sysconfdir}/lighttpd.d/

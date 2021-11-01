@@ -2,7 +2,7 @@ SUMMARY = "s6 init scripts"
 LICENSE = "MIT"
 SECTION = "base"
 DEPENDS = "initscripts"
-RDEPENDS_${PN} = "s6 s6-rc s6-linux-init s6-networking execline"
+RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline"
 
 PV = "1.1.0"
 PR = "r0"

@@ -4,7 +4,7 @@ HOMEPAGE = "http://skarnet.org/software/${BPN}/"
 LICENSE = "ISC"
 SECTION = "base"
 DEPENDS = "skalibs execline s6 s6-dns"
-RDEPENDS_${PN} = "s6-dns"
+RDEPENDS:${PN} = "s6-dns"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d096eb937732001e90b6c48fe07906c0"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"

@@ -4,7 +4,7 @@ HOMEPAGE = "http://skarnet.org/software/${BPN}/"
 LICENSE = "ISC"
 SECTION = "base"
 DEPENDS = "skalibs s6 execline"
-RDEPENDS_${PN} = "s6 execline"
+RDEPENDS:${PN} = "s6 execline"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=c2becd2c2579701b65222d136ce1c138"
 
@@ -20,7 +20,7 @@ SRC_URI += "file://rc.init\
             file://runlevel\
             file://s6-init-kbd.patch"
 
-do_install_append() {
+do_install:append() {
   install -m 0755 ${WORKDIR}/rc.init ${WORKDIR}/rc.shutdown \
                   ${WORKDIR}/runlevel ${D}${sysconfdir}/s6-linux-init/skel/
 }

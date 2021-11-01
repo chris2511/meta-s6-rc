@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 EXTRA_OECONF += "--disable-lastlog --disable-utmp --disable-wtmp"
 SRC_URI += "file://dropbear.run"

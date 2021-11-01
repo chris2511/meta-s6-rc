@@ -1,11 +1,11 @@
 
 S6RC_BASEDIR = "/etc/s6-rc"
 S6RC_TREE = "${S6RC_BASEDIR}/tree"
-FILES_${PN} += "${S6RC_TREE}"
+FILES:${PN} += "${S6RC_TREE}"
 
 inherit useradd
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM_${PN}_prepend = " --system --home ${localstatedir}/log \
+USERADD_PARAM:${PN}:prepend = " --system --home ${localstatedir}/log \
                             --no-create-home --shell /bin/false \
                             --user-group logger;"
 
@@ -129,7 +129,7 @@ fakeroot do_s6rc_install_tree() {
 addtask s6rc_install_tree after do_install before do_package
 do_s6rc_install_tree[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
-pkg_postinst_${PN}_append () {
+pkg_postinst:${PN}:append () {
   if test "${INIT_MANAGER}" = "s6"; then
     cd $D${S6RC_BASEDIR}/tree
     $D/sbin/rc-finish ${S6RC_LONGRUNS} ${S6RC_ONESHOTS} ${S6RC_BUNDLES}

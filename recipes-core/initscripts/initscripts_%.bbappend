@@ -2,4 +2,4 @@
 # into the sysroot of recipes depending on initscripts.
 # Especially s6-init uses it to rob/borrow
 # the one or other script
-SYSROOT_DIRS_append = "${sysconfdir}"
+SYSROOT_DIRS:append = " ${sysconfdir}"
