@@ -4,6 +4,8 @@ BBCLASSEXTEND = "native"
 do_configure() {
   ${S}/configure --enable-static --libdir=${prefix}/lib --enable-static-libc \
                  --includedir=${prefix}/include --prefix=${base_prefix} \
+                 --with-include=${STAGING_DIR_TARGET}/${prefix}/include \
+                 --with-lib=${STAGING_DIR_TARGET}/${prefix}/lib \
                  --with-sysdeps=${STAGING_DIR_TARGET}/usr/lib/skalibs/sysdeps
 }
 
