@@ -46,13 +46,14 @@ S6RC_BUNDLE_network = "hostname networking"
 
 # The default bundle lists the services explicit and doesn't reference
 # other bundles to allow enabling and disabling of all services via rc-service
-S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd watchdog"
-S6RC_BUNDLE_default += "postinsts"
+S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd"
+S6RC_BUNDLE_default += "watchdog postinsts"
 
 S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
-		mount-devpts networking udevadm hwclock postinsts ptest"
+		mount-devpts networking udevadm hwclock postinsts \
+		ptest ifup-lo\
+"
 
-S6RC_ONESHOT_start[up] = 'echo "init-stage2 starting."'
 S6RC_ONESHOT_hostname[up] = "redirfd -r 0 /etc/hostname withstdinas -E HOST hostname $HOST"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_mount-procsysdev[flag-essential] = ""
@@ -63,19 +64,18 @@ S6RC_ONESHOT_mount-devpts[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_mount-all[up] = "mount -at nonfs,nosmbfs,noncpfs"
 S6RC_ONESHOT_mount-all[dependencies] = "mount-procsysdev mount-temp"
 
-S6RC_ONESHOT_networking[dependencies] = "mount-procsysdev"
+S6RC_ONESHOT_networking[dependencies] = "ifup-lo"
 S6RC_ONESHOT_networking[up] = "/sbin/ifup -a --ignore-errors"
 S6RC_ONESHOT_networking[down] = "/sbin/ifdown -a"
 
 S6RC_ONESHOT_udevadm[dependencies] = "mount-procsysdev udevd"
 S6RC_ONESHOT_udevadm[up] = "foreground { /sbin/udevadm trigger --action=add } /sbin/udevadm settle"
 
+S6RC_ONESHOT_ifup-lo[up] = "/sbin/ifup --ignore-errors lo"
+
 S6RC_ONESHOT_hwclock[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_hwclock[up] = "/sbin/hwclock --utc --hctosys"
 S6RC_ONESHOT_hwclock[down] = "/sbin/hwclock --utc --systohc"
-
-S6RC_ONESHOT_ptest[dependencies] = "mount-procsysdev"
-S6RC_ONESHOT_ptest[up] = "foreground { ptest-runner } poweroff"
 
 S6RC_ONESHOT_postinsts[dependencies] = "mount-all"
 
