@@ -8,8 +8,8 @@ RDEPENDS:${PN} = "s6-dns"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d096eb937732001e90b6c48fe07906c0"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "b09a843555aabae5ca4bc41e49e3b437204f7371024d48a9eab63e3e5f7ac3ba"
+SRC_URI[sha256sum] = "2507c51fea5a2d07a7a77300a6502f2af4a04b6da15131f20bf984b99091ff41"
 
-PV = "2.5.0.0"
+PV = "2.5.1.0"
 
 inherit s6-skarnet
