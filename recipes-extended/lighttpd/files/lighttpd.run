@@ -7,4 +7,6 @@ s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-lighttpd443
 fdswap 3 0
 export LISTEN_FDS 2
 getpid LISTEN_PID
+
+s6-setuidgid www-data
 lighttpd -D -f /etc/lighttpd/lighttpd.conf
