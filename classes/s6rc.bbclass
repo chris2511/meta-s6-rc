@@ -11,6 +11,18 @@ USERADD_PARAM:${PN}:prepend = " --system --home ${localstatedir}/log \
 
 # This class and its use is documented in the README.md
 python do_s6rc_create_tree() {
+    from pathlib import Path
+
+    def array_to_dir(dir, data):
+        try:
+            f = dir
+            if not os.path.exists(f):
+                os.makedirs(f)
+            for touchfile in data:
+                f = dir + "/" + touchfile
+                Path(f).touch()
+        except OSError:
+            bb.fatal('Unable to create %s' % f)
 
     def array_to_file(f, data):
         try:
@@ -49,8 +61,10 @@ python do_s6rc_create_tree() {
                 # with a single line entry
                 content = [ files[sfile].strip() ]
                 if sfile == "dependencies":
-                    # Dependencies are listed one per line
-                    content = files[sfile].split()
+                    # Dependencies are listed in dependencies.d
+                    array_to_dir(tree + "/" + "dependencies.d",
+                                 files[sfile].split())
+                    continue
                 if sfile == "run" and files[sfile][0:2] != "#!":
                     # inline run scripts are expected to be execlineb
                     content.insert(0, "#!/bin/execlineb -P")
@@ -75,7 +89,7 @@ python do_s6rc_create_tree() {
             raise bb.parse.SkipRecipe("S6RC_BUNDLE_%s is mandatory." % bundle)
 
         write_type(tree, "bundle")
-        array_to_file(tree + "/contents", contents)
+        array_to_dir(tree + "/contents.d", contents)
 
     # Oneshots
     for oneshot in (d.getVar('S6RC_ONESHOTS', True) or "").split():

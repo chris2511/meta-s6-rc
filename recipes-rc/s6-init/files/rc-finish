@@ -7,18 +7,18 @@ for service in $@; do
   # Add service to any bundle listed in "${service}/bundles"
   if test -f "${service}/bundles"; then
     for bundle in $(cat "${service}/bundles"); do
-      test -d "$bundle" || mkdir "$bundle"
+      test -d "$bundle" || mkdir -p "${bundle}/contents.d"
       test -r "${bundle}/type" || echo "bundle" > "${bundle}/type"
       test $(cat "${bundle}/type") = "bundle" || exit 1
 
-      echo "$service" >> "${bundle}/contents"
+       : > "${bundle}/contents.d/${service}"
     done
   fi
   # Add service as dependency to any service listed in "${service}/influence"
   if test -f "${service}/influences"; then
     for influence in $(cat "${service}/influences"); do
-      test -d "$influence" || exit 1
-      echo "$service" >> "$influence"/dependencies
+      test -d "${influence}/dependencies.d" || exit 1
+      : > "${influence}/dependencies.d/${service}"
     done
   fi
 done

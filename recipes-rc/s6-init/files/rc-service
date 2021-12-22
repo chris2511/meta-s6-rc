@@ -6,12 +6,6 @@ usage()
   exit 1
 }
 
-leave()
-{
-   test -n "$dir" && test -d "$dir" && rm -rf "$dir" || :
-   trap - EXIT
-}
-
 command="$1"
 shift
 
@@ -32,31 +26,13 @@ for service in "$@"; do
   fi
 done
 
-# Initialize runlevel config
-# A temporary directory is added (of course not in /tmp)
-# all entries in /etc/s6-rc/tree/default/contents
-# are created as empty files and then new entries are
-# 'touch'ed and disappearing entries are deleted with "rm"
-# Thisapproach is trivial to implement and idempotent:
-#  - Existing entries can be added without creating duplicates
-#  - Missing entries can be deleted without error
-#  - No need to play around with "sed" "awk" "sort" and friends
-
-dir=$(mktemp -d -p /var/run rc-change-XXXXXX)
-
-trap leave EXIT
-
-cd "$dir"
-xargs touch < /etc/s6-rc/tree/default/contents
+cd /etc/s6-rc/tree/default/contents.d
 
 case "$command" in
   enable)  touch "$@" ;;
   disable) rm -f "$@" ;;
   *)       usage
 esac
-
-# Modify the source tree
-ls -1 * > /etc/s6-rc/tree/default/contents
 
 # Modify the compiled database
 s6-rc-bundle -f add default *
