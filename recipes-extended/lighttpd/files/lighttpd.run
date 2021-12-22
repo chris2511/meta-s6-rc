@@ -1,5 +1,6 @@
 #!/bin/execlineb -P
 
+fdmove -c 2 1
 fdmove 3 0
 s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-lighttpd80
 fdmove 4 0
