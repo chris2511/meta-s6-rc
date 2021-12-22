@@ -100,4 +100,5 @@ S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_watchdog[flag-essential] = ""
 
 S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console vt100"
+S6RC_LONGRUN_getty[down-signal] = "SIGHUP"
 S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname"
