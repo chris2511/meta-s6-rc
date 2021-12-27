@@ -15,12 +15,7 @@ PV = "1.0.7.0"
 
 inherit s6-skarnet
 
-SRC_URI += "file://rc.init\
-            file://rc.shutdown\
-            file://runlevel\
-            file://s6-init-kbd.patch"
+SRC_URI += "file://s6-init-kbd.patch"
 
-do_install:append() {
-  install -m 0755 ${WORKDIR}/rc.init ${WORKDIR}/rc.shutdown \
-                  ${WORKDIR}/runlevel ${D}${sysconfdir}/s6-linux-init/skel/
-}
+PACKAGES =+ "${PN}-skel"
+FILES:${PN}-skel = "${sysconfdir}/s6-linux-init/skel"

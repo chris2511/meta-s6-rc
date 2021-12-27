@@ -6,12 +6,14 @@ do_configure() {
                  --includedir=${prefix}/include --prefix=${base_prefix} \
                  --with-include=${STAGING_DIR_TARGET}/${prefix}/include \
                  --with-lib=${STAGING_DIR_TARGET}/${prefix}/lib \
-                 --with-sysdeps=${STAGING_DIR_TARGET}/usr/lib/skalibs/sysdeps
+                 --with-sysdeps=${STAGING_DIR_TARGET}/usr/lib/skalibs/sysdeps \
+                 --shebangdir=/bin --libexecdir=/usr/libexec
 }
 
 do_configure:class-native() {
   ${S}/configure --enable-static --enable-shared --libdir=${prefix}/lib \
-                 --includedir=${prefix}/include --prefix=${base_prefix}
+                 --includedir=${prefix}/include --prefix=${base_prefix} \
+                 --shebangdir=/bin --libexecdir=/usr/libexec
 }
 
 do_compile() {

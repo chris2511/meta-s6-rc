@@ -1,14 +1,13 @@
 SUMMARY = "s6 init scripts"
 LICENSE = "MIT"
 SECTION = "base"
-DEPENDS = "initscripts"
-RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline"
+DEPENDS = "initscripts s6-linux-init-native"
+RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
 PV = "1.1.0"
 PR = "r0"
 
-SRC_URI = "file://init\
-           file://sysctl-printk.conf\
+SRC_URI = "file://sysctl-printk.conf\
            file://mount-procsysdev.up\
            file://mount-temp.up\
            file://syslogd.run\
@@ -17,18 +16,37 @@ SRC_URI = "file://init\
            file://rc-service\
            file://rc-finish\
            file://s6-startstop\
+           file://rc.init\
+           file://rc.shutdown\
+           file://rc.shutdown.final\
+           file://runlevel\
 "
 
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 S = "${WORKDIR}"
 
-inherit s6rc
+inherit s6rc update-alternatives
 INIT_D_DIR = "${sysconfdir}/init.d"
+S6_LINUX_INIT = "/etc/s6-linux-init"
+FILES:${PN} += "/service"
+
+do_compile() {
+  rm -rf s6-l-i &&
+  s6-linux-init-maker -p /usr/sbin:/usr/bin:/sbin:/bin \
+                      -c "${S6_LINUX_INIT}" -f "." "s6-l-i"
+}
 
 do_install() {
-  install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default
-  install -m 0755 ${S}/init ${S}/rc-recompile ${S}/rc-service ${S}/rc-finish\
+  install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default \
+             ${D}${S6_LINUX_INIT}
+  cp -R --no-dereference --preserve=mode,links,xattr s6-l-i/* \
+     ${D}${S6_LINUX_INIT}
+  mv ${D}${S6_LINUX_INIT}/bin/* ${D}${base_sbindir}
+  rmdir ${D}${S6_LINUX_INIT}/bin
+  ln -s /run/service ${D}/
+
+  install -m 0755 ${S}/rc-recompile ${S}/rc-service ${S}/rc-finish\
                     ${D}${base_sbindir}
   install -m 0755 ${S}/s6-startstop ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
