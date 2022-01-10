@@ -5,7 +5,7 @@ DEPENDS = "initscripts s6-linux-init-native"
 RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
 PV = "1.1.0"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "file://sysctl-printk.conf\
            file://mount-procsysdev.up\
@@ -30,6 +30,14 @@ inherit s6rc update-alternatives
 INIT_D_DIR = "${sysconfdir}/init.d"
 S6_LINUX_INIT = "/etc/s6-linux-init"
 FILES:${PN} += "/service"
+
+ALTERNATIVE:${PN} = "halt reboot poweroff shutdown"
+ALTERNATIVE_PRIORITY = "200"
+
+ALTERNATIVE_LINK_NAME[halt] = "${base_sbindir}/halt"
+ALTERNATIVE_LINK_NAME[reboot] = "${base_sbindir}/reboot"
+ALTERNATIVE_LINK_NAME[poweroff] = "${base_sbindir}/poweroff"
+ALTERNATIVE_LINK_NAME[shutdown] = "${base_sbindir}/shutdown"
 
 do_compile() {
   rm -rf s6-l-i &&
