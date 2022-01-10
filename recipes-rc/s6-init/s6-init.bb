@@ -58,7 +58,7 @@ do_install() {
                     ${D}${base_sbindir}
   install -m 0755 ${S}/s6-startstop ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
-  for initscript in devpts.sh sysfs.sh; do
+  for initscript in devpts.sh sysfs.sh hostname.sh; do
     install -m 0755 ${RECIPE_SYSROOT}/${INIT_D_DIR}/${initscript} \
 		     ${D}${INIT_D_DIR}
   done
@@ -80,7 +80,7 @@ S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		ptest ifup-lo\
 "
 
-S6RC_ONESHOT_hostname[up] = "redirfd -r 0 /etc/hostname withstdinas -E HOST hostname $HOST"
+S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname.sh"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_mount-procsysdev[flag-essential] = ""
 
