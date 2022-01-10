@@ -5,10 +5,9 @@ DEPENDS = "initscripts s6-linux-init-native"
 RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
 PV = "1.1.0"
-PR = "r1"
+PR = "r2"
 
 SRC_URI = "file://sysctl-printk.conf\
-           file://mount-procsysdev.up\
            file://mount-temp.up\
            file://syslogd.run\
            file://postinsts.up\
@@ -47,7 +46,7 @@ do_compile() {
 
 do_install() {
   install -d ${D}${base_sbindir} ${D}${INIT_D_DIR} ${D}${sysconfdir}/default \
-             ${D}${S6_LINUX_INIT}
+             ${D}${S6_LINUX_INIT} ${D}${sysconfdir}/sysctl.d
   cp -R --no-dereference --preserve=mode,links,xattr s6-l-i/* \
      ${D}${S6_LINUX_INIT}
   mv ${D}${S6_LINUX_INIT}/bin/* ${D}${base_sbindir}
@@ -57,7 +56,7 @@ do_install() {
   install -m 0755 ${S}/rc-recompile ${S}/rc-service ${S}/rc-finish\
                     ${D}${base_sbindir}
   install -m 0755 ${S}/s6-startstop ${D}${INIT_D_DIR}
-  install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}
+  install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}/sysctl.d/printk.conf
   for initscript in devpts.sh sysfs.sh hostname.sh; do
     install -m 0755 ${RECIPE_SYSROOT}/${INIT_D_DIR}/${initscript} \
 		     ${D}${INIT_D_DIR}
@@ -82,6 +81,8 @@ S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 
 S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname.sh"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
+
+S6RC_ONESHOT_mount-procsysdev[up] = "/etc/init.d/sysfs.sh"
 S6RC_ONESHOT_mount-procsysdev[flag-essential] = ""
 
 S6RC_ONESHOT_mount-devpts[up] = "/etc/init.d/devpts.sh"
@@ -89,6 +90,9 @@ S6RC_ONESHOT_mount-devpts[dependencies] = "mount-procsysdev"
 
 S6RC_ONESHOT_mount-all[up] = "mount -at nonfs,nosmbfs,noncpfs"
 S6RC_ONESHOT_mount-all[dependencies] = "mount-procsysdev mount-temp"
+
+S6RC_ONESHOT_sysctl[dependencies] = "mount-procsysdev"
+S6RC_ONESHOT_sysctl[up] = "elglob -0 FILES /etc/sysctl.d/*.conf if -t { test "$FILES" } /sbin/sysctl -q -p $FILES"
 
 S6RC_ONESHOT_networking[dependencies] = "ifup-lo"
 S6RC_ONESHOT_networking[up] = "/sbin/ifup -a --ignore-errors"

@@ -1,5 +1,0 @@
-/bin/sh -ec "
-mkdir -p /dev/pts
-/etc/init.d/sysfs.sh
-/sbin/sysctl -q -p /etc/sysctl*.conf || :
-"
