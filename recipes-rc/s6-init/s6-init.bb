@@ -39,7 +39,7 @@ ALTERNATIVE_LINK_NAME[shutdown] = "${base_sbindir}/shutdown"
 
 do_compile() {
   rm -rf s6-l-i &&
-  s6-linux-init-maker -p /usr/sbin:/usr/bin:/sbin:/bin \
+  s6-linux-init-maker -p /bin:/usr/bin:/sbin:/usr/sbin \
                       -c "${S6_LINUX_INIT}" -f "." "s6-l-i"
 }
 
