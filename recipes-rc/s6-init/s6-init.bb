@@ -5,7 +5,7 @@ DEPENDS = "initscripts s6-linux-init-native"
 RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
 PV = "1.1.0"
-PR = "r2"
+PR = "r3"
 
 SRC_URI = "file://sysctl-printk.conf\
            file://mount-temp.up\
@@ -71,11 +71,11 @@ S6RC_BUNDLE_network = "hostname networking"
 # The default bundle lists the services explicit and doesn't reference
 # other bundles to allow enabling and disabling of all services via rc-service
 S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd"
-S6RC_BUNDLE_default += "watchdog postinsts"
+S6RC_BUNDLE_default += "watchdog postinsts sysctl"
 
 S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock postinsts \
-		ptest ifup-lo\
+		ptest ifup-lo sysctl\
 "
 
 S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname.sh"
@@ -131,4 +131,4 @@ S6RC_LONGRUN_watchdog[flag-essential] = ""
 
 S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console vt100"
 S6RC_LONGRUN_getty[down-signal] = "SIGHUP"
-S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname"
+S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname sysctl"
