@@ -116,7 +116,7 @@ S6RC_LONGRUNS = "udevd klogd syslogd getty watchdog"
 S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 /sbin/udevd"
 S6RC_LONGRUN_udevd[dependencies] = "mount-procsysdev"
 
-S6RC_LONGRUN_klogd[run] = "fdmove -c 2 1 redirfd -r 0 /proc/kmsg exec -c ucspilogd"
+S6RC_LONGRUN_klogd[run] = "fdmove -c 2 1 redirfd -r 0 /proc/kmsg exec -c s6-setuidgid logger /bin/ucspilogd"
 S6RC_LONGRUN_klogd[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_klogd_log[user] = "logger"
 
