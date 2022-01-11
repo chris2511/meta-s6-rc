@@ -9,7 +9,6 @@ PR = "r2"
 
 SRC_URI = "file://sysctl-printk.conf\
            file://mount-temp.up\
-           file://syslogd.run\
            file://postinsts.up\
            file://rc-recompile\
            file://rc-service\
@@ -123,6 +122,7 @@ S6RC_LONGRUN_klogd_log[user] = "logger"
 
 S6RC_LONGRUN_syslogd[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_syslogd[notification-fd] = "3"
+S6RC_LONGRUN_syslogd[run] = "fdmove -c 2 1 s6-envuidgid logger s6-socklog -U -d 3"
 S6RC_LONGRUN_syslogd_log[user] = "logger"
 
 S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { /sbin/watchdog -F /dev/watchdog0 } s6-svc -d ."
