@@ -88,7 +88,7 @@ S6RC_ONESHOT_mount-devpts[up] = "/etc/init.d/devpts.sh"
 S6RC_ONESHOT_mount-devpts[dependencies] = "mount-procsysdev"
 
 S6RC_ONESHOT_mount-all[up] = "mount -at nonfs,nosmbfs,noncpfs"
-S6RC_ONESHOT_mount-all[dependencies] = "mount-procsysdev mount-temp"
+S6RC_ONESHOT_mount-all[dependencies] = "mount-procsysdev mount-temp mount-devpts"
 
 S6RC_ONESHOT_sysctl[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_sysctl[up] = "elglob -0 FILES /etc/sysctl.d/*.conf if -t { test "$FILES" } /sbin/sysctl -q -p $FILES"
