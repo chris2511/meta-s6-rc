@@ -3,6 +3,7 @@ SUMMARY = "Extend core-image by s6 tasks"
 OVERRIDES:append = ":${INIT_MANAGER}"
 
 fakeroot s6rc_compile_tree() {
+    rm -rf ${IMAGE_ROOTFS}/etc/s6-rc/compiledA
     s6-rc-compile ${IMAGE_ROOTFS}/etc/s6-rc/compiledA ${IMAGE_ROOTFS}/etc/s6-rc/tree
     ln -sf compiledA ${IMAGE_ROOTFS}/etc/s6-rc/compiled
 }
