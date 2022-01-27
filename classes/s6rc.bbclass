@@ -13,6 +13,12 @@ USERADD_PARAM:${PN}:prepend = " --system --home ${localstatedir}/log \
 python do_s6rc_create_tree() {
     from pathlib import Path
 
+    def getVarFlagsExpand(var):
+        flags = d.getVarFlags(var) or { }
+        for f in flags:
+            flags[f] = d.expand(flags[f])
+        return flags
+
     def array_to_dir(dir, data):
         try:
             f = dir
@@ -97,7 +103,7 @@ python do_s6rc_create_tree() {
         write_type(tree, "oneshot")
 
         valid_files = valid_files_atomic + [ "up", "down" ]
-        files = d.getVarFlags("S6RC_ONESHOT_%s" % oneshot) or { }
+        files = getVarFlagsExpand("S6RC_ONESHOT_%s" % oneshot)
 
         write_verbatim(workdir, tree, oneshot, files, valid_files, [ "up" ])
 
@@ -108,8 +114,8 @@ python do_s6rc_create_tree() {
         valid_files = valid_files_atomic + [ "producer-for", "consumer-for",
                         "run", "finish", "notification-fd", "timeout-kill",
                         "timeout-finish", "max-death-tally", "down-signal" ]
-        files = d.getVarFlags("S6RC_LONGRUN_%s" % longrun) or { }
-        log = d.getVarFlags('S6RC_LONGRUN_%s_log' % longrun)
+        files = getVarFlagsExpand("S6RC_LONGRUN_%s" % longrun)
+        log = getVarFlagsExpand('S6RC_LONGRUN_%s_log' % longrun)
         logname = ""
         if log:
             logname = longrun + "-log"
