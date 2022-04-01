@@ -1,0 +1,8 @@
+#!/bin/execlineb -P
+
+ifelse { test -r /etc/hostname } {
+    redirfd -r 0 /etc/hostname
+    withstdinas -E HOSTNAME
+    hostname ${HOSTNAME}
+}
+hostname localhost

@@ -1,7 +1,7 @@
 SUMMARY = "s6 init scripts"
 LICENSE = "MIT"
 SECTION = "base"
-DEPENDS = "initscripts s6-linux-init-native"
+DEPENDS = "s6-linux-init-native"
 RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
 PV = "1.1.0"
@@ -9,6 +9,8 @@ PR = "r3"
 
 SRC_URI = "file://sysctl-printk.conf\
            file://mount-temp.up\
+           file://mount-procsysdev.up\
+           file://mount-devpts.up\
            file://postinsts.up\
            file://rc-recompile\
            file://rc-service\
@@ -18,6 +20,7 @@ SRC_URI = "file://sysctl-printk.conf\
            file://rc.shutdown\
            file://rc.shutdown.final\
            file://runlevel\
+           file://hostname\
 "
 
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
@@ -54,14 +57,8 @@ do_install() {
 
   install -m 0755 ${S}/rc-recompile ${S}/rc-service ${S}/rc-finish\
                     ${D}${base_sbindir}
-  install -m 0755 ${S}/s6-startstop ${D}${INIT_D_DIR}
+  install -m 0755 ${S}/s6-startstop ${S}/hostname ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}/sysctl.d/printk.conf
-  for initscript in devpts.sh sysfs.sh hostname.sh; do
-    install -m 0755 ${RECIPE_SYSROOT}/${INIT_D_DIR}/${initscript} \
-		     ${D}${INIT_D_DIR}
-  done
-  install -m 0644 ${RECIPE_SYSROOT}/${sysconfdir}/default/devpts \
-		 ${D}${sysconfdir}/default
 }
 
 S6RC_BUNDLES = "basic network default"
@@ -78,13 +75,11 @@ S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		ptest ifup-lo sysctl\
 "
 
-S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname.sh"
+S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname"
 S6RC_ONESHOT_hostname[dependencies] = "mount-procsysdev"
 
-S6RC_ONESHOT_mount-procsysdev[up] = "/etc/init.d/sysfs.sh"
 S6RC_ONESHOT_mount-procsysdev[flag-essential] = ""
 
-S6RC_ONESHOT_mount-devpts[up] = "/etc/init.d/devpts.sh"
 S6RC_ONESHOT_mount-devpts[dependencies] = "mount-procsysdev"
 
 S6RC_ONESHOT_mount-all[up] = "mount -at nonfs,nosmbfs,noncpfs"

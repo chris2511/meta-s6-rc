@@ -1,0 +1,19 @@
+#!/bin/execlineb -P
+
+foreground {
+  if -t  { test -d /proc }
+  if -nt { test -e /proc/mounts }
+  mount -t proc proc /proc
+}
+
+foreground {
+  if -t  { grep -q sysfs /proc/filesystems }
+  if -nt { test -d /sys/class }
+  mount -t sysfs sysfs /sys
+}
+
+foreground {
+  if -t { grep -q devtmpfs /proc/filesystems }
+  if -nt { test -e /dev/zero }
+  mount -n -t devtmpfs devtmpfs /dev
+}
