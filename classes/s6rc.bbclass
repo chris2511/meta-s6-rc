@@ -32,11 +32,10 @@ python do_s6rc_create_tree() {
 
     def array_to_file(f, data):
         try:
-            cfgfile = open(f, 'w')
+            with open(f, 'w') as cfgfile:
+                cfgfile.write("\n".join(data) + "\n")
         except OSError:
             bb.fatal('Unable to open %s' % f)
-
-        cfgfile.write("\n".join(data) + "\n")
 
     # Create the tree directory and 'type' file
     def write_type(tree, rc_type):
