@@ -90,7 +90,7 @@ S6RC_ONESHOT_sysctl[up] = "elglob -0 FILES /etc/sysctl.d/*.conf if -t { test "$F
 
 S6RC_ONESHOT_networking[dependencies] = "ifup-lo"
 S6RC_ONESHOT_networking[up] = "/sbin/ifup -a --ignore-errors"
-S6RC_ONESHOT_networking[down] = "/sbin/ifdown -a"
+S6RC_ONESHOT_networking[down] = "/sbin/ifdown -a -X lo"
 
 S6RC_ONESHOT_udevadm[dependencies] = "mount-procsysdev udevd"
 S6RC_ONESHOT_udevadm[up] = "foreground { /sbin/udevadm trigger --action=add } /sbin/udevadm settle"
