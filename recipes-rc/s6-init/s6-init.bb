@@ -5,7 +5,7 @@ DEPENDS = "s6-linux-init-native"
 RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
 PV = "1.1.0"
-PR = "r3"
+PR = "r4"
 
 SRC_URI = "file://sysctl-printk.conf\
            file://mount-temp.up\
@@ -43,7 +43,7 @@ ALTERNATIVE_LINK_NAME[shutdown] = "${base_sbindir}/shutdown"
 do_compile() {
   rm -rf s6-l-i &&
   s6-linux-init-maker -p /bin:/usr/bin:/sbin:/usr/sbin \
-                      -c "${S6_LINUX_INIT}" -f "." "s6-l-i"
+                      -c "${S6_LINUX_INIT}" -f "." -q 100 "s6-l-i"
 }
 
 do_install() {
