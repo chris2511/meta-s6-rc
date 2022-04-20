@@ -20,21 +20,6 @@ TCLIBC = "musl"
 INIT_MANAGER = "s6"
 ```
 
-## Booting
-
-The boot process follows the proposals of the S6 author.
-To setup the system with `s6-linux-init-maker`
-`recipes-rc/s6-init/files/init` will be run during first boot
-and initialises the system:
-
- 1. Calls `/bin/s6-linux-init-maker /etc/s6-linux-init/current`
- 2. Moves `/etc/s6-linux-init/current/bin/init` to `/sbin/init`
-    and thus replaces itself for the next boot.
- 3. Moves the created [halt|poweroff|reboot|telinit].s6
-    scripts to `/sbin/` and activates them via update-alternatives.
- 4. Runs `s6-rc-compile` on the current service tree in `/etc/s6-rc/tree`.
- 5. Execs into the new `/sbin/init`, which execs into `s6-linux-init`
-
 ## Documentation
 
 The S6 system itself is thoroughly documented by its author.
