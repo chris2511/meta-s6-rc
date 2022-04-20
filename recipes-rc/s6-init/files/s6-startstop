@@ -16,8 +16,11 @@ case "$1" in
   restart) exec /bin/s6-svc -ru /service/"$service" ;;
   status)  exec /bin/s6-svstat /service/"$service" ;;
   pid)     exec /bin/s6-svstat -o pid /service/"$service" ;;
+  crashes) exec /bin/s6-svdt /service/"$service" | /bin/s6-tai64nlocal ;;
+  logs)    exec 2>/dev/null cat /var/log/"$service"/@* /var/log/"$service"/current ;;
+  logf)    exec tail -n20 -f /var/log/"$service"/current ;;
   *)
-    echo "Usage $0 [enable|disable|start|stop|restart|status|pid]"
+    echo "Usage $0 [enable|disable|start|stop|restart|status|pid|crashes|logs|logf]"
     exit 1
     ;;
 esac

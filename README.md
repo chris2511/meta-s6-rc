@@ -40,7 +40,8 @@ Please read/know about the concepts documented in
 The S6RC\_INITD\_SYMLINKS variable declares a space separated
 list of service names that will be put as symlinks to `s6-startstop`
 to `/etc/init.d/`. This enables SysV/Systemd feeling by providing:
-`/etc/init.d/<service> [start|stop|restart|enable|disable|status|pid]`
+`/etc/init.d/<service> [start|stop|restart|enable|disable|status|pid|
+crashes|logs|logf]`
 
 ### Bundles
 
@@ -180,3 +181,6 @@ It provides the following subcommands:
    if it is already running.
  - *status:* prints the `s6-svstat` output
  - *pid:* prints the pid of the service
+ - *crashes:* prints the death tally of the service
+ - *logs:* prints the complete log
+ - *logf:* does a tail -f of the last logs
