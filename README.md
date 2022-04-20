@@ -118,8 +118,8 @@ An existing file `${S}/mount-procsysdev.up` will be copied verbatim to
 The functionality and behavior is analog to the oneshots, just with the
 longrun properties.
 
-`S6RC_LONGRUN_%_log[]` properties are evaluated differently.
-If at least one of them exists, a log service will be created
+A log service will always be setup, unless `S6RC_LONGRUN_%[no-log]`
+exists. `S6RC_LONGRUN_%_log[]` properties are evaluated
 with the following property files:
  - name: `<longrun-name>-log`
  - notification-fd: 3

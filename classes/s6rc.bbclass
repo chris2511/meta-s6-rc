@@ -115,14 +115,14 @@ python do_s6rc_create_tree() {
                         "timeout-finish", "max-death-tally", "down-signal" ]
         files = getVarFlagsExpand("S6RC_LONGRUN_%s" % longrun)
         log = getVarFlagsExpand('S6RC_LONGRUN_%s_log' % longrun)
-        logname = ""
-        if log:
+        do_logger = not "no-log" in files
+        if do_logger:
             logname = longrun + "-log"
             files["producer-for"] = logname
 
         write_verbatim(workdir, tree, longrun, files, valid_files, [ "run" ])
         # Automatic log-service generation
-        if log:
+        if do_logger:
             tree = basetree + "/" + logname
             write_type(tree, "longrun")
 

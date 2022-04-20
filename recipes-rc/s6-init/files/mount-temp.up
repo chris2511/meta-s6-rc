@@ -1,4 +1,5 @@
 foreground { mount -t tmpfs tmpfs /var/volatile -o rw,nosuid,nodev,relatime,mode=755 }
 foreground { mkdir -m 1777 -p /var/volatile/tmp }
-if { mkdir -m 0775 -p /var/volatile/log }
-chgrp logger /var/volatile/log
+if -t { mkdir -m 0775 -p /var/volatile/log }
+  foreground { chgrp logger /var/volatile/log }
+  ln -s /run/uncaught-logs /var/volatile/log

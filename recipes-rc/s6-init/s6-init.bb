@@ -43,7 +43,8 @@ ALTERNATIVE_LINK_NAME[shutdown] = "${base_sbindir}/shutdown"
 do_compile() {
   rm -rf s6-l-i &&
   s6-linux-init-maker -p /bin:/usr/bin:/sbin:/usr/sbin \
-                      -c "${S6_LINUX_INIT}" -f "." -q 100 "s6-l-i"
+                      -c "${S6_LINUX_INIT}" -f . \
+                      -q 100 -t 2 -u logger s6-l-i
 }
 
 do_install() {
@@ -51,6 +52,7 @@ do_install() {
              ${D}${S6_LINUX_INIT} ${D}${sysconfdir}/sysctl.d
   cp -R --no-dereference --preserve=mode,links,xattr s6-l-i/* \
      ${D}${S6_LINUX_INIT}
+  chown logger: ${D}${S6_LINUX_INIT}/run-image/uncaught-logs
   mv ${D}${S6_LINUX_INIT}/bin/* ${D}${base_sbindir}
   rmdir ${D}${S6_LINUX_INIT}/bin
   ln -s /run/service ${D}/
@@ -113,12 +115,10 @@ S6RC_LONGRUN_udevd[dependencies] = "mount-procsysdev"
 
 S6RC_LONGRUN_klogd[run] = "fdmove -c 2 1 redirfd -r 0 /proc/kmsg exec -c s6-setuidgid logger /bin/ucspilogd"
 S6RC_LONGRUN_klogd[dependencies] = "mount-procsysdev"
-S6RC_LONGRUN_klogd_log[user] = "logger"
 
 S6RC_LONGRUN_syslogd[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_syslogd[notification-fd] = "3"
 S6RC_LONGRUN_syslogd[run] = "fdmove -c 2 1 s6-envuidgid logger s6-socklog -U -d 3"
-S6RC_LONGRUN_syslogd_log[user] = "logger"
 
 S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { /sbin/watchdog -F /dev/watchdog0 } s6-svc -d ."
 S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
