@@ -2,7 +2,8 @@ FILES:${PN} += "/libexec"
 BBCLASSEXTEND = "native"
 
 do_configure() {
-  ${S}/configure --enable-static --libdir=${prefix}/lib --enable-static-libc \
+  ${S}/configure --enable-static --libdir=${prefix}/lib \
+                 ${@'--enable-static-libc' if "${TCLIBC}" == "musl" else ''}\
                  --includedir=${prefix}/include --prefix=${base_prefix} \
                  --with-include=${STAGING_DIR_TARGET}/${prefix}/include \
                  --with-lib=${STAGING_DIR_TARGET}/${prefix}/lib \
