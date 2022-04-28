@@ -11,7 +11,7 @@ esac
 rm -rf "$new"
 
 s6-rc-compile -v 2 "$new" tree
-s6-rc-update -v 2 /etc/s6-rc/compiled
+s6-rc-update -v 2 /etc/s6-rc/"$new"
 
 ln -s "$new" "$new"/compiled
 sync
