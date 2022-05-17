@@ -9,18 +9,20 @@ if test "$service" = "s6-startstop"; then
 fi
 
 case "$1" in
-  enable)  exec /sbin/rc-service enable "$service" ;;
-  disable) exec /sbin/rc-service disable "$service" ;;
-  start)   exec /bin/s6-rc -v2 "-u" change "$service" ;;
-  stop)    exec /bin/s6-rc -v2 "-d" change "$service" ;;
-  restart) exec /bin/s6-svc -ru /service/"$service" ;;
+  enable)  /sbin/rc-service enable "$service" ;;
+  disable) /sbin/rc-service disable "$service" ;;
+  start)   /bin/s6-rc -v2 "-u" change "$service" ;;
+  stop)    /bin/s6-rc -v2 "-d" change "$service" ;;
+  restart) /bin/s6-svc -wr -ru /service/"$service" ;;
   status)  exec /bin/s6-svstat /service/"$service" ;;
   pid)     exec /bin/s6-svstat -o pid /service/"$service" ;;
   crashes) exec /bin/s6-svdt /service/"$service" | /bin/s6-tai64nlocal ;;
   logs)    exec 2>/dev/null cat /var/log/"$service"/@* /var/log/"$service"/current ;;
   logf)    exec tail -n20 -f /var/log/"$service"/current ;;
   *)
-    echo "Usage $0 [enable|disable|start|stop|restart|status|pid|crashes|logs|logf]"
+    echo "Usage $0 {enable|disable|start|stop|restart|status|pid|crashes|logs|logf}"
     exit 1
     ;;
 esac
+
+exec /bin/s6-svstat /service/"$service"
