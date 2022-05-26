@@ -4,8 +4,8 @@ SECTION = "base"
 DEPENDS = "s6-linux-init-native"
 RDEPENDS:${PN} = "s6 s6-rc s6-linux-init s6-networking execline ifupdown"
 
-PV = "1.1.0"
-PR = "r4"
+PV = "1.1.1"
+PR = "r0"
 
 SRC_URI = "file://sysctl-printk.conf\
            file://mount-temp.up\
@@ -40,6 +40,10 @@ ALTERNATIVE_LINK_NAME[reboot] = "${base_sbindir}/reboot"
 ALTERNATIVE_LINK_NAME[poweroff] = "${base_sbindir}/poweroff"
 ALTERNATIVE_LINK_NAME[shutdown] = "${base_sbindir}/shutdown"
 
+inherit useradd
+USERADD_PACKAGES = "${PN}"
+GROUPADD_PARAM:${PN} = "-r reboot"
+
 do_compile() {
   rm -rf s6-l-i &&
   s6-linux-init-maker -p /bin:/usr/bin:/sbin:/usr/sbin \
@@ -61,6 +65,8 @@ do_install() {
                     ${D}${base_sbindir}
   install -m 0755 ${S}/s6-startstop ${S}/hostname ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}/sysctl.d/printk.conf
+  chmod 664 ${D}${S6_LINUX_INIT}/run-image/service/s6-linux-init-shutdownd/fifo
+  chgrp reboot ${D}${S6_LINUX_INIT}/run-image/service/s6-linux-init-shutdownd/fifo
 }
 
 S6RC_BUNDLES = "basic network default"
