@@ -73,6 +73,10 @@ python do_s6rc_create_tree() {
                 if sfile == "run" and files[sfile][0:2] != "#!":
                     # inline run scripts are expected to be execlineb
                     content.insert(0, "#!/bin/execlineb -P")
+                if sfile == "finish" and files[sfile][0:2] != "#!":
+                    # inline finish scripts are expected to be execlineb
+                    # and recieve the run's exit code as argv[1]
+                    content.insert(0, "#!/bin/execlineb -S1")
 
                 array_to_file(tree + "/" + sfile, content)
 
