@@ -9,16 +9,32 @@ for service in $@; do
     for bundle in $(cat "${service}/bundles"); do
       test -d "$bundle" || mkdir -p "${bundle}/contents.d"
       test -r "${bundle}/type" || echo "bundle" > "${bundle}/type"
-      test $(cat "${bundle}/type") = "bundle" || exit 1
-
-       : > "${bundle}/contents.d/${service}"
+      if test $(cat "${bundle}/type") != "bundle"; then
+        echo "ERROR ${PN}: ${bundle} is not a bundle, but a '$(cat "${bundle}/type")'"
+        exit 1
+      fi
+      : > "${bundle}/contents.d/${service}"
     done
   fi
   # Add service as dependency to any service listed in "${service}/influence"
   if test -f "${service}/influences"; then
     for influence in $(cat "${service}/influences"); do
-      test -d "${influence}/dependencies.d" || exit 1
-      : > "${influence}/dependencies.d/${service}"
+      target_type="$(cat ${influence}/type)"
+      case "$target_type" in
+        oneshot|longrun)
+          mkdir -p "${influence}/dependencies.d"
+          : > "${influence}/dependencies.d/${service}"
+          ;;
+        bundle)
+          echo "ERROR: ${PN}: ${influence} is a bundle. Use 'S6RC_[LONGRUN|ONESHOT|BUNDLE]_${service}[bundles] = \"${influence}\"'" instead.
+          exit 1 ;;
+        "")
+          echo "ERROR: ${PN}: Service ${influence} referenced by ${service} is invalid"
+          exit 1 ;;
+        *)
+          echo "ERROR: ${PN}: Service ${service} influences ${influence}, which is not a service, but a '${target_type}'"
+          exit 1 ;;
+      esac
     done
   fi
 done

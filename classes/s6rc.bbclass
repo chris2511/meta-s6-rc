@@ -149,11 +149,12 @@ fakeroot do_s6rc_install_tree() {
     cp -r ${WORKDIR}/tree ${D}${S6RC_BASEDIR}
   fi
 }
-addtask s6rc_install_tree after do_install before do_package
+addtask do_s6rc_install_tree after do_install before do_package
 do_s6rc_install_tree[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 pkg_postinst:${PN}:append () {
   if test "${INIT_MANAGER}" = "s6"; then
+    export PN="${PN}"
     cd $D${S6RC_BASEDIR}/tree
     $D/sbin/rc-finish ${S6RC_LONGRUNS} ${S6RC_ONESHOTS} ${S6RC_BUNDLES}
     for link in ${S6RC_INITD_SYMLINKS}; do
