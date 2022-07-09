@@ -140,7 +140,19 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                       "dependencies": "mount-temp" }
             write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
 }
-addtask s6rc_create_tree after do_compile before do_install
+addtask do_s6rc_create_tree after do_compile before do_install
+do_s6rc_create_tree[vardeps] += "S6RC_BUNDLE_basic"
+python () {
+  vardeps = []
+  # Collect all S6RC_[BUNDLE|ONESHOT|LONGRUN]_* variables for
+  # do_s6rc_create_tree[vardeps]
+  for prefix in [ "BUNDLE", "ONESHOT", "LONGRUN" ]:
+    for var in (d.getVar("S6RC_" + prefix + "S") or "").split():
+      vardeps.append("S6RC_" + prefix + "_" + var)
+
+  d.appendVarFlag('do_s6rc_create_tree', 'vardeps',
+                  " " + " ".join(vardeps))
+}
 
 fakeroot do_s6rc_install_tree() {
   if test "${INIT_MANAGER}" = "s6"; then
