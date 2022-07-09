@@ -12,6 +12,7 @@ USERADD_PARAM:${PN}:prepend = " --system --home ${localstatedir}/log \
 # This class and its use is documented in the README.md
 python do_s6rc_create_tree() {
     from pathlib import Path
+    import shutil
 
     def getVarFlagsExpand(var):
         flags = d.getVarFlags(var) or { }
@@ -22,8 +23,8 @@ python do_s6rc_create_tree() {
     def array_to_dir(dir, data):
         try:
             f = dir
-            if not os.path.exists(f):
-                os.makedirs(f)
+            os.makedirs(f)
+
             for touchfile in data:
                 f = dir + "/" + touchfile
                 Path(f).touch()
@@ -47,7 +48,6 @@ python do_s6rc_create_tree() {
     # if a file called "name.<valid_file>" exists, us it
     # check that all files listed in 'mandatory' do exist
     def write_verbatim(workdir, tree, name, files, valid_files, mandatory):
-        from shutil import copyfile
         # Check that all "files" are valid_files
         for sfile in files:
             if not sfile in valid_files:
@@ -58,7 +58,7 @@ python do_s6rc_create_tree() {
             # takes precedence
             sourcefile = workdir + "/" + name + "." + sfile
             if os.path.exists(sourcefile):
-                copyfile(sourcefile, tree + "/" + sfile)
+                shutil.copyfile(sourcefile, tree + "/" + sfile)
                 if sfile in files:
                   bb.warn("Ignoring S6RC_*_%s[%s], because a source file %s exists" % (name, sfile, sourcefile))
             elif sfile in files:
@@ -85,6 +85,8 @@ python do_s6rc_create_tree() {
 
     workdir = d.getVar("WORKDIR")
     basetree = workdir + "/tree"
+    if os.path.exists(basetree):
+        shutil.rmtree(basetree)
 
     if d.getVar("INIT_MANAGER") != "s6": return
 
