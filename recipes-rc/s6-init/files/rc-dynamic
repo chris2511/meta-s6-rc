@@ -1,0 +1,57 @@
+#!/bin/sh
+
+cd /run/service
+updown="$1"
+shift
+
+usage()
+{
+  cat <<- EOF
+	Error: $1
+	Usage: $0 <setup|teardown> instance@template
+	EOF
+  exit 1
+}
+
+case "$updown" in
+  setup|teardown) ;;
+  *) usage "First arg must be 'setup' or 'teardown'";;
+esac
+
+for SV in $@; do
+    INSTANCE="${SV%%@*}"
+    TEMPLATE="${SV##*@}"
+    TEMPLATE_DIR="/etc/s6-rc/templates/$TEMPLATE"
+
+    [ "$INSTANCE" ] && [ "$TEMPLATE" ] ||
+	usage "Invalid dynamic name: $SV"
+    [ -d "$TEMPLATE_DIR" ] ||
+	usage "Unknown template: $TEMPLATE"
+
+    case "$updown" in
+	teardown)
+	    rm -f "${SV}"
+	    continue
+    esac
+    if [ -h "$SV" ]; then
+      echo "Service $SV already setup"
+      continue
+    fi
+
+    if [ -x "${TEMPLATE_DIR}/data/check-instance" ]; then
+	"${TEMPLATE_DIR}/data/check-instance" "$INSTANCE" ||
+	    usage "Invalid instance $INSTANCE"
+    fi
+    rm -rf ".$SV"
+    cp -a "/etc/s6-rc/templates/$TEMPLATE" ".$SV"
+    mkdir -p ".$SV/env"
+
+    cat > ".$SV/env/instance" <<- EOF
+	INSTANCE="$INSTANCE"
+	TEMPLATE="$TEMPLATE"
+	EOF
+
+    ln -s ".$SV" "$SV"
+done
+
+exec s6-svscanctl -an .

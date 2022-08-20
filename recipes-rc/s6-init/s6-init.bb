@@ -15,12 +15,15 @@ SRC_URI = "file://sysctl-printk.conf\
            file://rc-recompile\
            file://rc-service\
            file://rc-finish\
+           file://rc-dynamic\
            file://s6-startstop\
            file://rc.init\
            file://rc.shutdown\
            file://rc.shutdown.final\
            file://runlevel\
            file://hostname\
+           file://vtlogin.run\
+           file://vtlogin.check-instance\
 "
 
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
@@ -62,7 +65,7 @@ do_install() {
   ln -s /run/service ${D}/
 
   install -m 0755 ${S}/rc-recompile ${S}/rc-service ${S}/rc-finish\
-                    ${D}${base_sbindir}
+                  ${S}/rc-dynamic ${D}${base_sbindir}
   install -m 0755 ${S}/s6-startstop ${S}/hostname ${D}${INIT_D_DIR}
   install -m 0644 ${S}/sysctl-printk.conf ${D}${sysconfdir}/sysctl.d/printk.conf
   chmod 664 ${D}${S6_LINUX_INIT}/run-image/service/s6-linux-init-shutdownd/fifo
@@ -133,3 +136,5 @@ S6RC_LONGRUN_watchdog[flag-essential] = ""
 S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console linux"
 S6RC_LONGRUN_getty[down-signal] = "SIGHUP"
 S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname sysctl"
+
+S6RC_TEMPLATES = "vtlogin"

@@ -145,6 +145,13 @@ S6RC_LONGRUN_syslogd_log[user] = "logger"
 ```
 The `syslogd/run` file is expected to be found in "${S}/syslogd.run"
 
+### Templates
+
+`S6_RC_TEMPLATES` contains a space separated list of templates that
+can be instantiated by the [*rc-dynamic*](#rc-dynamic) command.
+`S6RC_LONGRUN_%[ ]` declares service properties with % replaced by a template-name.
+A *run* script is mandatory
+
 ## Additional commands
 
 ### rc-recompile
@@ -165,6 +172,22 @@ It first modifies the source tree in `/etc/s6-rc/tree/default/contents`,
 then adds or removes it to the compiled database by
 `s6-rc-bundle -f add default ...`
 and finally updates the live state by `s6-rc -up -v2 change default`.
+
+### rc-dynamic
+
+usage `rc-dynamic [setup|teardown] <service-name>
+
+Create an instance from an [S6\_RC\_TEMPLATE](#templates). The name of the dynamic service is **instance@template**
+The template from the directory */etc/s6-rc/templates/* is copied with the whole service name
+to */run/service*. An envfile called *env/instance* is created inside the service with 2 variables:
+ - INSTANCE="\<instance-name\>"
+ - TEMPLATE="\<template-name\>"
+
+The run and finish scripts may source it or the execlie way: *envfile env/instance* it and
+use the INSTANCE variable name for starting this specific instance.
+An optional executable file in the template: *data/check-instance* may be used to validate
+the instance name. It will be called with the instance-name as argument and must exit 0
+if the instance is valid. If it exits non-zero, the instance creation fails.
 
 ### s6-startstop
 

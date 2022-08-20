@@ -1,0 +1,4 @@
+#!/bin/sh
+
+exec 2> /dev/null
+[ "$1" -gt 0 ] && [ "$1" -lt 64 ]

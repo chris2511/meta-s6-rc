@@ -1,7 +1,8 @@
 
-S6RC_BASEDIR = "/etc/s6-rc"
-S6RC_TREE = "${S6RC_BASEDIR}/tree"
-FILES:${PN} += "${S6RC_TREE}"
+S6RC_DIR = "s6-rc"
+S6RC_BASEDIR = "${sysconfdir}/${S6RC_DIR}"
+FILES:${PN}:append = " ${S6RC_BASEDIR}"
+RDEPENDS:${PN}:append = " execline"
 
 inherit useradd
 USERADD_PACKAGES = "${PN}"
@@ -82,16 +83,30 @@ python do_s6rc_create_tree() {
 
             elif sfile in mandatory:
                 raise bb.parse.SkipRecipe("Error with S6RC_*_%s: '%s' files are mandatory. Either as S6RC_*_%s[%s] or as source file '%s.%s'." % (name, sfile, name, sfile, name, sfile))
+            else:
+                continue
+
+            if sfile in [ "run", "finish", "up", "down", "check-instance" ]:
+                os.chmod(tree + "/" + sfile, 0o755)
+
+            if sfile == "check-instance":
+                os.makedirs(tree + "/data")
+                os.rename(tree + "/" + sfile, tree + "/data/" + sfile)
 
     workdir = d.getVar("WORKDIR")
-    basetree = workdir + "/tree"
-    if os.path.exists(basetree):
-        shutil.rmtree(basetree)
+    workdir_s6 = workdir + "/" + d.getVar("S6RC_DIR")
+    if os.path.exists(workdir_s6):
+        shutil.rmtree(workdir_s6)
+    basetree = workdir_s6 + "/tree"
+    templatetree = workdir_s6 + "/templates"
 
     if d.getVar("INIT_MANAGER") != "s6": return
 
     valid_files_atomic = [ "timeout-up", "timeout-down", "flag-essential",
                            "dependencies", "bundles", "influences" ]
+    valid_files_service = [ "run", "finish", "down", "notification-fd",
+                            "timeout-kill", "timeout-finish",
+                            "max-death-tally", "down-signal" ]
     # Bundles
     for bundle in (d.getVar('S6RC_BUNDLES', True) or "").split():
         tree = basetree + "/" + bundle
@@ -116,9 +131,8 @@ python do_s6rc_create_tree() {
     for longrun in (d.getVar('S6RC_LONGRUNS', True) or "").split():
         tree = basetree + "/" + longrun
         write_type(tree, "longrun")
-        valid_files = valid_files_atomic + [ "producer-for", "consumer-for",
-                        "run", "finish", "notification-fd", "timeout-kill",
-                        "timeout-finish", "max-death-tally", "down-signal" ]
+        valid_files = valid_files_atomic + valid_files_service + \
+                      [ "producer-for", "consumer-for" ]
         files = getVarFlagsExpand("S6RC_LONGRUN_%s" % longrun)
         log = getVarFlagsExpand('S6RC_LONGRUN_%s_log' % longrun)
         do_logger = not "no-log" in files
@@ -141,14 +155,22 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                       "consumer-for": longrun,
                       "dependencies": "mount-temp" }
             write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
+    # Templates
+    for template in (d.getVar('S6RC_TEMPLATES', True) or "").split():
+        tree = templatetree + "/" + template
+        bb.utils.mkdirhier(tree)
+        valid_files = valid_files_service + [ "check-instance" ]
+        files = getVarFlagsExpand("S6RC_TEMPLATES_%s" % longrun)
+
+        write_verbatim(workdir, tree, template, files, valid_files, [ "run" ])
 }
 addtask do_s6rc_create_tree after do_compile before do_install
 do_s6rc_create_tree[vardeps] += "S6RC_BUNDLE_basic"
 python () {
   vardeps = []
-  # Collect all S6RC_[BUNDLE|ONESHOT|LONGRUN]_* variables for
+  # Collect all S6RC_[BUNDLE|ONESHOT|LONGRUN|TEMPLATE]_* variables for
   # do_s6rc_create_tree[vardeps]
-  for prefix in [ "BUNDLE", "ONESHOT", "LONGRUN" ]:
+  for prefix in [ "BUNDLE", "ONESHOT", "LONGRUN", "TEMPLATE" ]:
     for var in (d.getVar("S6RC_" + prefix + "S") or "").split():
       vardeps.append("S6RC_" + prefix + "_" + var)
 
@@ -158,9 +180,8 @@ python () {
 
 fakeroot do_s6rc_install_tree() {
   if test "${INIT_MANAGER}" = "s6"; then
-    install -d ${D}${S6RC_BASEDIR}
-    rm -rf ${D}${S6RC_BASEDIR}/tree
-    cp -r ${WORKDIR}/tree ${D}${S6RC_BASEDIR}
+    install -d ${D}${sysconfdir}
+    cp -r ${WORKDIR}/${S6RC_DIR} ${D}${sysconfdir}
   fi
 }
 addtask do_s6rc_install_tree after do_install before do_package

@@ -1,0 +1,8 @@
+#!/bin/execlineb -P
+
+fdmove -c 2 1
+
+envfile env/instance
+importas VT INSTANCE
+foreground { echo Starting login on vt$VT }
+getty 0 /dev/tty$VT
