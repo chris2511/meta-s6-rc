@@ -1,5 +1,7 @@
 
 S6RC_DIR = "s6-rc"
+S6RC_LOG_SIZE ?= "s100000 n10"
+
 S6RC_BASEDIR = "${sysconfdir}/${S6RC_DIR}"
 FILES:${PN}:append = " ${S6RC_BASEDIR}"
 RDEPENDS:${PN}:append = " execline"
@@ -149,7 +151,7 @@ python do_s6rc_create_tree() {
             files = { "run": "#!/bin/execlineb -P\n\
 umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                         (log.get("umask", "0037"), log.get("user", "logger"),
-                         log.get("script", "T s100000 n10"),
+                         log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
                          log.get("dir", "/var/log/" + longrun)),
                       "notification-fd": "3",
                       "consumer-for": longrun,
