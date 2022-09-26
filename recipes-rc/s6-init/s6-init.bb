@@ -137,4 +137,4 @@ S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console 
 S6RC_LONGRUN_getty[down-signal] = "SIGHUP"
 S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname sysctl"
 
-S6RC_TEMPLATES = "vtlogin"
+S6RC_TEMPLATES = "${@ 'vtlogin' if d.getVar('USE_VT') == '1' else ''}"
