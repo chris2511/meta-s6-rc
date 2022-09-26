@@ -5,6 +5,7 @@ if -nt { test -f ${CERT} }
   execline-umask 0277
 
   redirfd -w 1 ${CERT}.tmp
+  redirfd -w 2 /dev/null
   ifte { foreground { chown www-data ${CERT}.tmp }
                       mv ${CERT}.tmp ${CERT} }
        { rm -f ${CERT}.tmp }
