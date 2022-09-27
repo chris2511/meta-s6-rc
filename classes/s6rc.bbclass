@@ -134,7 +134,7 @@ python do_s6rc_create_tree() {
         tree = basetree + "/" + longrun
         write_type(tree, "longrun")
         valid_files = valid_files_atomic + valid_files_service + \
-                      [ "producer-for", "consumer-for" ]
+                      [ "producer-for", "consumer-for", "no-log" ]
         files = getVarFlagsExpand("S6RC_LONGRUN_%s" % longrun)
         log = getVarFlagsExpand('S6RC_LONGRUN_%s_log' % longrun)
         do_logger = not "no-log" in files
