@@ -147,10 +147,18 @@ The `syslogd/run` file is expected to be found in "${S}/syslogd.run"
 
 ### Templates
 
-`S6_RC_TEMPLATES` contains a space separated list of templates that
+`S6RC_TEMPLATES` contains a space separated list of templates that
 can be instantiated by the [*rc-dynamic*](#rc-dynamic) command.
-`S6RC_LONGRUN_%[ ]` declares service properties with % replaced by a template-name.
+`S6RC_TEMPLATES_%[ ]` declares service properties with % replaced by a template-name.
 A *run* script is mandatory
+
+A log service will be setup if `S6RC_TEMPLATES_%_log[mode]` exists and contains a valid value. For template services, there are two log modes available "all-in-one" and "per-instance".
+
+With `all-in-one` a single log file service will be setup that can be used to collect the log entries of all service instances. For this to work, the log service stores a file descriptor in the s6-fdholder-store that must be retrieved by each service instance.
+
+The file descriptor can be retrieved with `s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-<template>`.
+
+The mode `per-instance` creates a minimal log service for each service instance. Stdout will be automatically forwarded to this log service.
 
 ## Additional commands
 

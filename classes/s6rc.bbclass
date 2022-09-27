@@ -161,10 +161,53 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
     for template in (d.getVar('S6RC_TEMPLATES', True) or "").split():
         tree = templatetree + "/" + template
         bb.utils.mkdirhier(tree)
-        valid_files = valid_files_service + [ "check-instance" ]
+        valid_files = valid_files_service + [ "check-instance", "mode" ]
         files = getVarFlagsExpand("S6RC_TEMPLATES_%s" % template)
+        log = getVarFlagsExpand('S6RC_TEMPLATES_%s_log' % template)
 
         write_verbatim(workdir, tree, template, files, valid_files, [ "run" ])
+        # Automatic log-service generation
+        if "mode" in log:
+            logname = template + "-log"
+            logmode = log.get("mode", "")
+            if logmode == "per-instance":
+                # Create a logfile for each service instance
+                tree = templatetree + "/" + template + "/log"
+                bb.utils.mkdirhier(tree)
+                logdir = log.get("dir", "/var/log/" + template + "/${instance}@" + template)
+
+                files = { "run": "#!/bin/execlineb -P\n\
+envfile ../env/instance\n\
+importas instance INSTANCE\n\
+umask %s s6-setuidgid %s foreground { mkdir -p %s } s6-log %s %s" %
+                    (log.get("umask", "0037"),
+                    log.get("user", "logger"),
+                    logdir,
+                    log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
+                    logdir) }
+                write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
+            elif logmode == "all-in-one":
+                # Combine all instances of a template into a single log file
+                valid_files = valid_files_atomic + valid_files_service + \
+                    [ "producer-for", "consumer-for" ]
+                tree = basetree + "/" + logname
+                write_type(tree, "longrun")
+
+                files = { "run": "#!/bin/execlineb -P\n\
+piperw 0 4\n\
+foreground { s6-fdholder-store -d4 /service/s6rc-fdholder/s pipe:s6rc-%s }\n\
+umask %s s6-setuidgid %s s6-log -d3 %s %s" %
+                            (template, log.get("umask", "0037"),
+                            log.get("user", "logger"),
+                            log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
+                            log.get("dir", "/var/log/" + template)),
+                        "bundles": "default",
+                        "notification-fd": "3",
+                        "dependencies": "mount-temp" }
+                write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
+            else:
+                if logmode != "":
+                    raise bb.parse.SkipRecipe("'%s' in S6RC_*_%s[%s] is not a valid option. Valid options are: %s" % (logmode, logname, "mode", "'', 'all-in-one', 'per-instance' or don't set it at all to disable logging."))
 }
 addtask do_s6rc_create_tree after do_compile before do_install
 do_s6rc_create_tree[vardeps] += "S6RC_BUNDLE_basic"
