@@ -133,6 +133,9 @@ with the following property files:
    - script: `T s100000 n10`
    - dir: `/var/log/<longrun-name>`
 
+All properties can be overwritten (and not extended) by an explicit
+value. For example: `S6RC_LONGRUN_%_log[dependencies] = "mount-temp other"`
+
 Example:
 ```
 S6RC_LONGRUNS = "getty syslogd"

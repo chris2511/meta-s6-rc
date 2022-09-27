@@ -62,12 +62,14 @@ python do_s6rc_create_tree() {
             sourcefile = workdir + "/" + name + "." + sfile
             if os.path.exists(sourcefile):
                 shutil.copyfile(sourcefile, tree + "/" + sfile)
-                if sfile in files:
+                if sfile in files and sfile.find("-log.") != -1:
                   bb.warn("Ignoring S6RC_*_%s[%s], because a source file %s exists" % (name, sfile, sourcefile))
             elif sfile in files:
                 # By default the content is a one-element array
                 # with a single line entry
                 content = [ files[sfile].strip() ]
+                if sfile == "consumer-for":
+                    content = files[sfile].split()
                 if sfile == "dependencies":
                     # Dependencies are listed in dependencies.d
                     array_to_dir(tree + "/" + "dependencies.d",
@@ -109,6 +111,8 @@ python do_s6rc_create_tree() {
     valid_files_service = [ "run", "finish", "down", "notification-fd",
                             "timeout-kill", "timeout-finish",
                             "max-death-tally", "down-signal" ]
+    special_log_files = [ "umask", "user", "script", "dir", "mode" ]
+
     # Bundles
     for bundle in (d.getVar('S6RC_BUNDLES', True) or "").split():
         tree = basetree + "/" + bundle
@@ -156,7 +160,10 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                       "notification-fd": "3",
                       "consumer-for": longrun,
                       "dependencies": "mount-temp" }
-            write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
+            for i in special_log_files:
+                log.pop(i, None)
+            write_verbatim(workdir, tree, logname, { **files, **log },
+                           valid_files, [ "run" ])
     # Templates
     for template in (d.getVar('S6RC_TEMPLATES', True) or "").split():
         tree = templatetree + "/" + template
@@ -185,7 +192,7 @@ umask %s s6-setuidgid %s foreground { mkdir -p %s } s6-log %s %s" %
                     logdir,
                     log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
                     logdir) }
-                write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
+
             elif logmode == "all-in-one":
                 # Combine all instances of a template into a single log file
                 valid_files = valid_files_atomic + valid_files_service + \
@@ -204,10 +211,13 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                         "bundles": "default",
                         "notification-fd": "3",
                         "dependencies": "mount-temp" }
-                write_verbatim(workdir, tree, logname, files, valid_files, [ "run" ])
             else:
-                if logmode != "":
-                    raise bb.parse.SkipRecipe("'%s' in S6RC_*_%s[%s] is not a valid option. Valid options are: %s" % (logmode, logname, "mode", "'', 'all-in-one', 'per-instance' or don't set it at all to disable logging."))
+                raise bb.parse.SkipRecipe("'%s' in S6RC_*_%s[%s] is not a valid option. Valid options are: %s" % (logmode, logname, "mode", "'', 'all-in-one', 'per-instance' or don't set it at all to disable logging."))
+
+            for i in special_log_files:
+                log.pop(i, None)
+            write_verbatim(workdir, tree, logname, { **files, **log },
+                           valid_files, [ "run" ])
 }
 addtask do_s6rc_create_tree after do_compile before do_install
 do_s6rc_create_tree[vardeps] += "S6RC_BUNDLE_basic"
@@ -218,6 +228,7 @@ python () {
   for prefix in [ "BUNDLE", "ONESHOT", "LONGRUN", "TEMPLATE" ]:
     for var in (d.getVar("S6RC_" + prefix + "S") or "").split():
       vardeps.append("S6RC_" + prefix + "_" + var)
+      vardeps.append("S6RC_" + prefix + "_" + var + "_log")
 
   d.appendVarFlag('do_s6rc_create_tree', 'vardeps',
                   " " + " ".join(vardeps))
