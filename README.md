@@ -152,10 +152,10 @@ The `syslogd/run` file is expected to be found in "${S}/syslogd.run"
 
 `S6RC_TEMPLATES` contains a space separated list of templates that
 can be instantiated by the [*rc-dynamic*](#rc-dynamic) command.
-`S6RC_TEMPLATES_%[ ]` declares service properties with % replaced by a template-name.
+`S6RC_TEMPLATE_%[ ]` declares service properties with % replaced by a template-name.
 A *run* script is mandatory
 
-A log service will be setup if `S6RC_TEMPLATES_%_log[mode]` exists and contains a valid value. For template services, there are two log modes available "all-in-one" and "per-instance".
+A log service will be setup if `S6RC_TEMPLATE_%_log[mode]` exists and contains a valid value. For template services, there are two log modes available "all-in-one" and "per-instance".
 
 With `all-in-one` a single log file service will be setup that can be used to collect the log entries of all service instances. For this to work, the log service stores a file descriptor in the s6-fdholder-store that must be retrieved by each service instance.
 
@@ -188,7 +188,7 @@ and finally updates the live state by `s6-rc -up -v2 change default`.
 
 usage `rc-dynamic [setup|teardown] <service-name>
 
-Create an instance from an [S6\_RC\_TEMPLATE](#templates). The name of the dynamic service is **instance@template**
+Create an instance from an [S6RC\_TEMPLATE](#templates). The name of the dynamic service is **instance@template**
 The template from the directory */etc/s6-rc/templates/* is copied with the whole service name
 to */run/service*. An envfile called *env/instance* is created inside the service with 2 variables:
  - INSTANCE="\<instance-name\>"

@@ -169,8 +169,8 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
         tree = templatetree + "/" + template
         bb.utils.mkdirhier(tree)
         valid_files = valid_files_service + [ "check-instance", "mode" ]
-        files = getVarFlagsExpand("S6RC_TEMPLATES_%s" % template)
-        log = getVarFlagsExpand('S6RC_TEMPLATES_%s_log' % template)
+        files = getVarFlagsExpand("S6RC_TEMPLATE_%s" % template)
+        log = getVarFlagsExpand('S6RC_TEMPLATE_%s_log' % template)
 
         write_verbatim(workdir, tree, template, files, valid_files, [ "run" ])
         # Automatic log-service generation
