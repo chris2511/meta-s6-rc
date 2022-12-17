@@ -6,7 +6,7 @@ This layer introduces [s6-rc](https://skarnet.org/software/s6-rc) as init system
 
 ```sh
 git clone git://git.yoctoproject.org/poky
-(cd poky && git checkout -b dunfell origin/dunfell)
+(cd poky && git checkout -b kirkstone origin/kirkstone)
 git clone https://github.com/chris2511/meta-s6-rc.git
 . poky/oe-init-build-env
 bitbake-layers add-layer ../meta-s6-rc
@@ -118,6 +118,11 @@ An existing file `${S}/mount-procsysdev.up` will be copied verbatim to
 
 The functionality and behavior is analog to the oneshots, just with the
 longrun properties.
+The `producer-for` and `consumer-for` entries don't have to appear pairwise.
+The s6rc class will resolve missing entries is it does with the `influences`
+entry as the reverse of `depends`.
+This allows to declare dependencies unidirectional if depending services are
+declared in different layers.
 
 A log service will always be setup, unless `S6RC_LONGRUN_%[no-log]`
 exists. `S6RC_LONGRUN_%_log[]` properties are evaluated

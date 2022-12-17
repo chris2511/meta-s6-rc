@@ -2,8 +2,8 @@
 
 # must be called with cwd==/etc/s6-rc/tree
 
-for service in $@; do
-  test -d "$service" || exit 1
+add_service_to_bundle() {
+  service="$1"
   # Add service to any bundle listed in "${service}/bundles"
   if test -f "${service}/bundles"; then
     for bundle in $(cat "${service}/bundles"); do
@@ -16,6 +16,10 @@ for service in $@; do
       : > "${bundle}/contents.d/${service}"
     done
   fi
+}
+
+resolve_influences() {
+  service="$1"
   # Add service as dependency to any service listed in "${service}/influence"
   if test -f "${service}/influences"; then
     for influence in $(cat "${service}/influences"); do
@@ -36,5 +40,58 @@ for service in $@; do
           exit 1 ;;
       esac
     done
+  fi
+}
+
+inject_producer_into_consumer() {
+  service="$1"
+  if test -f "${service}/producer-for"; then
+    consumer="$(cat "${service}/producer-for")"
+    if ! test -d "${consumer}"; then
+      echo "ERROR: ${PN}: Service ${consumer} referenced as consumer for ${service} is invalid"
+      exit 1
+    fi
+    touch "${consumer}/consumer-for"
+    grep -q "${service}" "${consumer}/consumer-for" 2> /dev/null || echo "${service}" >> "${consumer}/consumer-for"
+  fi
+}
+
+inject_consumer_into_producers() {
+  service="$1"
+  if test -f "${service}/consumer-for"; then
+    for producer in $(cat "${service}/consumer-for"); do
+      if ! test -d "${producer}"; then
+        echo "ERROR: ${PN}: Service ${producer} referenced as producer for ${service} is invalid"
+        exit 1
+      fi
+      producer_type="$(cat ${producer}/type)"
+      if test "${producer_type}" != longrun; then
+        echo "ERROR: ${PN}: Service ${producer} referenced as producer for ${service} is not a longrun, but ${producer_type}"
+        exit 1
+      fi
+      oldvalue="$(cat "${producer}/producer-for" 2> /dev/null)"
+      case "${oldvalue}" in
+        ${service}) ;;
+        "") echo ${service} > "${producer}/producer-for" ;;
+        *) echo "ERROR: ${PN}: Service ${producer} referenced by ${service} is already a producer for ${oldvalue}"
+           exit 1 ;;
+      esac
+    done
+  fi
+}
+
+finish_service() {
+  add_service_to_bundle "${1}"
+  resolve_influences "${1}"
+  inject_producer_into_consumer "${1}"
+  inject_consumer_into_producers "${1}"
+}
+
+for service in $@; do
+  if test -s "${service}/type"; then
+    finish_service "${service}"
+  fi
+  if test -s "${service}-log/type"; then
+    finish_service "${service}-log"
   fi
 done

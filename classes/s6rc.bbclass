@@ -238,6 +238,11 @@ fakeroot do_s6rc_install_tree() {
   if test "${INIT_MANAGER}" = "s6"; then
     install -d ${D}${sysconfdir}
     cp -r ${WORKDIR}/${S6RC_DIR} ${D}${sysconfdir}
+    for link in ${S6RC_INITD_SYMLINKS}; do
+      mkdir -p ${D}/etc/init.d
+      rm -f ${D}/etc/init.d/${link}
+      ln -sf s6-startstop ${D}/etc/init.d/${link}
+    done
   fi
 }
 addtask do_s6rc_install_tree after do_install before do_package
@@ -245,13 +250,10 @@ do_s6rc_install_tree[depends] += "virtual/fakeroot-native:do_populate_sysroot"
 
 pkg_postinst:${PN}:append () {
   if test "${INIT_MANAGER}" = "s6"; then
+    # Make current package-name available as PN in rc-finish
     export PN="${PN}"
     cd $D${S6RC_BASEDIR}/tree
-    $D/sbin/rc-finish ${S6RC_LONGRUNS} ${S6RC_ONESHOTS} ${S6RC_BUNDLES}
-    for link in ${S6RC_INITD_SYMLINKS}; do
-      mkdir -p $D/etc/init.d
-      rm -f $D/etc/init.d/${link}
-      ln -sf s6-startstop $D/etc/init.d/${link}
-    done
+    $D/sbin/rc-finish ${S6RC_LONGRUNS} ${S6RC_ONESHOTS} ${S6RC_BUNDLES} ${S6RC_TEMPLATES}
+
   fi
 }
