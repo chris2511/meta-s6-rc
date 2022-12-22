@@ -7,7 +7,7 @@ FILES:${PN}:append = " ${S6RC_BASEDIR}"
 RDEPENDS:${PN}:append = " execline"
 
 inherit useradd
-USERADD_PACKAGES = "${PN}"
+USERADD_PACKAGES += "${PN}"
 USERADD_PARAM:${PN}:prepend = " --system --home ${localstatedir}/log \
                             --no-create-home --shell /bin/false \
                             --user-group logger;"
