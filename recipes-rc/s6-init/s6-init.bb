@@ -11,6 +11,7 @@ SRC_URI = "file://sysctl-printk.conf\
            file://mount-temp.up\
            file://mount-procsysdev.up\
            file://mount-devpts.up\
+           file://fdstore-fill.up\
            file://postinsts.up\
            file://rc-recompile\
            file://rc-service\
@@ -48,6 +49,7 @@ ALTERNATIVE_LINK_NAME[shutdown] = "${base_sbindir}/shutdown"
 
 inherit useradd
 USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} = "--system --user-group fdstore"
 GROUPADD_PARAM:${PN} = "-r reboot"
 
 do_compile() {
@@ -76,9 +78,10 @@ do_install() {
   chgrp reboot ${D}${S6_LINUX_INIT}/run-image/service/s6-linux-init-shutdownd/fifo
 }
 
-S6RC_BUNDLES = "basic network default"
+S6RC_BUNDLES = "basic network default fdstorage"
 S6RC_BUNDLE_basic = "hostname getty hwclock"
 S6RC_BUNDLE_network = "hostname networking"
+S6RC_BUNDLE_fdstorage = "fdstore fdstore-fill"
 
 # The default bundle lists the services explicit and doesn't reference
 # other bundles to allow enabling and disabling of all services via rc-service
@@ -88,7 +91,7 @@ S6RC_BUNDLE_default += "${@ 'vtlogin' if d.getVar('USE_VT') == '1' else ''}"
 
 S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock postinsts \
-		ptest ifup-lo sysctl vtlogin getty \
+		ptest ifup-lo sysctl vtlogin getty fdstore-fill \
 "
 
 S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname"
@@ -128,8 +131,10 @@ S6RC_ONESHOT_getty[dependencies] = "mount-procsysdev sysctl"
 S6RC_ONESHOT_vtlogin[up] = "rc-dynamic setup 1@vtlogin 2@vtlogin 3@vtlogin"
 S6RC_ONESHOT_vtlogin[dependencies] = "mount-procsysdev sysctl"
 
+S6RC_ONESHOT_fdstore-fill[dependencies] = "fdstore"
+
 ################## Long running services with logger
-S6RC_LONGRUNS = "udevd klogd syslogd watchdog"
+S6RC_LONGRUNS = "udevd klogd syslogd watchdog fdstore"
 S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 /sbin/udevd"
 S6RC_LONGRUN_udevd[dependencies] = "mount-procsysdev"
 
@@ -144,6 +149,23 @@ S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { 
 S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_watchdog[flag-essential] = ""
 
+S6RC_LONGRUN_fdstore[run] = "s6-envuidgid -D 0:0:0 fdstore s6-fdholder-daemon -1 -U -i data/rules s"
+S6RC_LONGRUN_fdstore[notification-fd] = "1"
+S6RC_LONGRUN_fdstore[no-log] = "1"
+
+do_s6rc_install_tree:append() {
+  rm -rf ${D}${S6RC_BASEDIR}/tree/fdstore/data/rules
+  mkdir -p ${D}${S6RC_BASEDIR}/tree/fdstore/data/rules
+  cd ${D}${S6RC_BASEDIR}/tree/fdstore/data/rules
+  mkdir -p uid/0/env gid/0
+  ln -sf ../../uid/0/env gid/0/env
+  touch uid/0/allow gid/0/allow
+  echo > uid/0/env/S6_FDHOLDER_SETDUMP
+  echo > uid/0/env/S6_FDHOLDER_GETDUMP
+  echo > uid/0/env/S6_FDHOLDER_LIST
+  echo '^socket:|^read:|^write:' > uid/0/env/S6_FDHOLDER_STORE_REGEX
+  ln -s S6_FDHOLDER_STORE_REGEX uid/0/env/S6_FDHOLDER_RETRIEVE_REGEX
+}
 
 S6RC_TEMPLATES = "getty vtlogin"
 S6RC_TEMPLATE_getty[down-signal] = "SIGHUP"

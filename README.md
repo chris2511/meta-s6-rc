@@ -123,10 +123,27 @@ An existing file `${S}/mount-procsysdev.up` will be copied verbatim to
 The functionality and behavior is analog to the oneshots, just with the
 longrun properties.
 The `producer-for` and `consumer-for` entries don't have to appear pairwise.
-The s6rc class will resolve missing entries is it does with the `influences`
+The s6rc class will resolve missing entries as it does with the `influences`
 entry as the reverse of `depends`.
 This allows to declare dependencies unidirectional if depending services are
 declared in different layers.
+
+#### Filedescriptor storage
+
+Longruns may have an additional verb `filedescriptors`, which is an execline
+script, creating filedescriptors via `piperw` or `s6-tcpserver4-socketbinder`
+and storing them in the new fd-holder service called `fdstore`. It canm be
+done as usual as inline declaration or by a `<longrun>.filedescriptors`
+file with `s6-fdholder-store /service/fdstore/s [socket|write|read]:<name>`.
+
+The all-in-one logger of templates also uses this mechanism.
+
+The oneshot `fdstore-fill` executes all `filedescriptors` scripts.
+Longruns using this mechanisms must depend on the `fdstorage` bundle
+to be sure the descriptors are ready. This is automatically done by the
+`s6rc.bbclass`
+
+#### Logging
 
 A log service will always be setup, unless `S6RC_LONGRUN_%[no-log]`
 exists. `S6RC_LONGRUN_%_log[]` properties are evaluated
@@ -166,9 +183,10 @@ A *run* script is mandatory
 
 A log service will be setup if `S6RC_TEMPLATE_%_log[mode]` exists and contains a valid value. For template services, there are two log modes available "all-in-one" and "per-instance".
 
-With `all-in-one` a single log file service will be setup that can be used to collect the log entries of all service instances. For this to work, the log service stores a file descriptor in the s6-fdholder-store that must be retrieved by each service instance.
+With `all-in-one` a single log file service will be setup that can be used to collect the log entries of all service instances. For this to work, the log service stores a file descriptor in the s6-fdholder service `fdstore` that must be retrieved by each service instance.
 
-The file descriptor can be retrieved with `s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-<template>`.
+The file descriptor can be retrieved with `s6-fdholder-retrieve /service/fdstore/s write:${TEMPLATE}-log`. See also [*Filedescriptor storage*](#filedescriptor-storage).
+When instantiating templates inside a [*Oneshot*](#oneshots)
 
 The mode `per-instance` creates a minimal log service for each service instance. Stdout will be automatically forwarded to this log service.
 

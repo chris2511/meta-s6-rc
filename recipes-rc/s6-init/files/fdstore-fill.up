@@ -1,0 +1,5 @@
+#!/bin/execlineb -P
+
+elglob -0 SOCKET /service/*/data/filedescriptors
+forx -E SCRIPT { $SOCKET }
+  execlineb -P $SCRIPT

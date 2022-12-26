@@ -1,7 +1,0 @@
-foreground {
-  s6-tcpserver4-socketbinder 0.0.0.0 80
-  s6-fdholder-store /service/s6rc-fdholder/s pipe:s6rc-lighttpd80
-}
-
-s6-tcpserver4-socketbinder 0.0.0.0 443
-s6-fdholder-store /service/s6rc-fdholder/s pipe:s6rc-lighttpd443

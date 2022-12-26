@@ -26,7 +26,7 @@ python do_s6rc_create_tree() {
     def array_to_dir(dir, data):
         try:
             f = dir
-            os.makedirs(f)
+            os.makedirs(f, exist_ok=True)
 
             for touchfile in data:
                 f = dir + "/" + touchfile
@@ -72,8 +72,7 @@ python do_s6rc_create_tree() {
                     content = files[sfile].split()
                 if sfile == "dependencies":
                     # Dependencies are listed in dependencies.d
-                    array_to_dir(tree + "/" + "dependencies.d",
-                                 files[sfile].split())
+                    array_to_dir(tree + "/dependencies.d", files[sfile].split())
                     continue
                 if sfile == "run" and files[sfile][0:2] != "#!":
                     # inline run scripts are expected to be execlineb
@@ -93,9 +92,12 @@ python do_s6rc_create_tree() {
             if sfile in [ "run", "finish", "up", "down", "check-instance" ]:
                 os.chmod(tree + "/" + sfile, 0o755)
 
-            if sfile == "check-instance":
-                os.makedirs(tree + "/data")
+            if sfile in [ "check-instance", "filedescriptors" ]:
+                os.makedirs(tree + "/data", exist_ok=True)
                 os.rename(tree + "/" + sfile, tree + "/data/" + sfile)
+
+            if sfile in [ "filedescriptors" ]:
+                array_to_dir(tree + "/dependencies.d", [ "fdstorage" ])
 
     workdir = d.getVar("WORKDIR")
     workdir_s6 = workdir + "/" + d.getVar("S6RC_DIR")
@@ -110,7 +112,8 @@ python do_s6rc_create_tree() {
                            "dependencies", "bundles", "influences" ]
     valid_files_service = [ "run", "finish", "down", "notification-fd",
                             "timeout-kill", "timeout-finish",
-                            "max-death-tally", "down-signal" ]
+                            "max-death-tally", "down-signal", "filedescriptors",
+                            "producer-for", "consumer-for" ]
     special_log_files = [ "umask", "user", "script", "dir", "mode" ]
 
     # Bundles
@@ -137,8 +140,7 @@ python do_s6rc_create_tree() {
     for longrun in (d.getVar('S6RC_LONGRUNS', True) or "").split():
         tree = basetree + "/" + longrun
         write_type(tree, "longrun")
-        valid_files = valid_files_atomic + valid_files_service + \
-                      [ "producer-for", "consumer-for", "no-log" ]
+        valid_files = valid_files_atomic + valid_files_service + [ "no-log" ]
         files = getVarFlagsExpand("S6RC_LONGRUN_%s" % longrun)
         log = getVarFlagsExpand('S6RC_LONGRUN_%s_log' % longrun)
         do_logger = not "no-log" in files
@@ -195,14 +197,12 @@ umask %s s6-setuidgid %s foreground { mkdir -p %s } s6-log %s %s" %
 
             elif logmode == "all-in-one":
                 # Combine all instances of a template into a single log file
-                valid_files = valid_files_atomic + valid_files_service + \
-                    [ "producer-for", "consumer-for" ]
+                valid_files = valid_files_atomic + valid_files_service
                 tree = basetree + "/" + logname
                 write_type(tree, "longrun")
 
                 files = { "run": "#!/bin/execlineb -P\n\
-piperw 0 4\n\
-foreground { s6-fdholder-store -d4 /service/s6rc-fdholder/s pipe:s6rc-%s }\n\
+s6-fdholder-retrieve /service/fdstore/s read:%s-log \
 umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                             (template, log.get("umask", "0037"),
                             log.get("user", "logger"),
@@ -210,7 +210,11 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
                             log.get("dir", "/var/log/" + template)),
                         "bundles": "default",
                         "notification-fd": "3",
-                        "dependencies": "mount-temp" }
+                        "dependencies": "mount-temp",
+                        "filedescriptors": "piperw 0 1 \
+foreground { s6-fdholder-store -d1 /service/fdstore/s write:%s-log } \
+s6-fdholder-store /service/fdstore/s read:%s-log" % (template, template)
+                }
             else:
                 raise bb.parse.SkipRecipe("'%s' in S6RC_*_%s[%s] is not a valid option. Valid options are: %s" % (logmode, logname, "mode", "'', 'all-in-one', 'per-instance' or don't set it at all to disable logging."))
 

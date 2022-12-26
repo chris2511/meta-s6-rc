@@ -2,9 +2,9 @@
 
 fdmove -c 2 1
 fdmove 3 0
-s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-lighttpd80
+s6-fdholder-retrieve /service/fdstore/s socket:lighttpd:tcp:80
 fdmove 4 0
-s6-fdholder-retrieve /service/s6rc-fdholder/s pipe:s6rc-lighttpd443
+s6-fdholder-retrieve /service/fdstore/s socket:lighttpd:tcp:443
 fdswap 3 0
 export LISTEN_FDS 2
 getpid LISTEN_PID

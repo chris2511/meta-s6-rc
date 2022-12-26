@@ -1,7 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI += "\
-  file://lighttpd_sockets.up\
+  file://lighttpd.filedescriptors\
   file://lighttpd.run\
   file://socket_activation.conf\
   file://ssl.conf\
@@ -10,6 +10,7 @@ SRC_URI += "\
 "
 
 PACKAGECONFIG:append = "openssl"
+RDEPENDS:${PN} = "openssl-bin"
 
 do_install:append() {
   install -d ${D}${sysconfdir}/lighttpd.d ${D}${sysconfdir}/lighttpd
@@ -20,10 +21,10 @@ do_install:append() {
 
 inherit s6rc
 
-S6RC_ONESHOTS = "lighttpd_sockets https_keygen"
+S6RC_ONESHOTS = "https_keygen"
 S6RC_ONESHOT_https_keygen[timeout-up] = "600000"
 
 S6RC_LONGRUNS = "lighttpd"
-S6RC_LONGRUN_lighttpd[dependencies] = "mount-devpts mount-temp hostname lighttpd_sockets https_keygen"
+S6RC_LONGRUN_lighttpd[dependencies] = "mount-devpts mount-temp hostname https_keygen"
 S6RC_LONGRUN_lighttpd[bundles] = "network default"
 S6RC_INITD_SYMLINKS = "${S6RC_LONGRUNS}"
