@@ -82,10 +82,11 @@ S6RC_BUNDLE_network = "hostname networking"
 # other bundles to allow enabling and disabling of all services via rc-service
 S6RC_BUNDLE_default = "hostname networking getty hwclock klogd syslogd"
 S6RC_BUNDLE_default += "watchdog postinsts sysctl"
+S6RC_BUNDLE_default += "${@ 'vtlogin' if d.getVar('USE_VT') == '1' else ''}"
 
 S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock postinsts \
-		ptest ifup-lo sysctl\
+		ptest ifup-lo sysctl vtlogin \
 "
 
 S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname"
@@ -119,6 +120,9 @@ S6RC_ONESHOT_postinsts[dependencies] = "mount-all"
 S6RC_ONESHOT_ptest[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_ptest[up] = "foreground { redirfd -w 1 /ptest.log ptest-runner } poweroff"
 
+S6RC_ONESHOT_vtlogin[up] = "rc-dynamic setup 1@vtlogin 2@vtlogin 3@vtlogin"
+S6RC_ONESHOT_vtlogin[dependencies] = "mount-procsysdev sysctl"
+
 ################## Long running services with logger
 S6RC_LONGRUNS = "udevd klogd syslogd getty watchdog"
 S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 /sbin/udevd"
@@ -139,4 +143,5 @@ S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console 
 S6RC_LONGRUN_getty[down-signal] = "SIGHUP"
 S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname sysctl"
 
-S6RC_TEMPLATES = "${@ 'vtlogin' if d.getVar('USE_VT') == '1' else ''}"
+S6RC_TEMPLATES = "vtlogin"
+S6RC_TEMPLATE_vtlogin-log[mode] = "per-instance"
