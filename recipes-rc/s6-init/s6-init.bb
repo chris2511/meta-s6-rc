@@ -33,6 +33,7 @@ S = "${WORKDIR}"
 inherit s6rc update-alternatives
 INIT_D_DIR = "${sysconfdir}/init.d"
 S6_LINUX_INIT = "/etc/s6-linux-init"
+S6RC_DEBUG_BOOT ?= ""
 FILES:${PN} += "/service"
 
 ALTERNATIVE:${PN} = "halt reboot poweroff shutdown"
@@ -51,6 +52,7 @@ do_compile() {
   rm -rf s6-l-i &&
   s6-linux-init-maker -p /bin:/usr/bin:/sbin:/usr/sbin \
                       -c "${S6_LINUX_INIT}" -f . \
+                      ${@ "" if d.getVar("S6RC_DEBUG_BOOT") == "" else "-1" } \
                       -q 100 -t 2 -u logger s6-l-i
 }
 

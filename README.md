@@ -43,6 +43,10 @@ to `/etc/init.d/`. This enables SysV/Systemd feeling by providing:
 `/etc/init.d/<service> [start|stop|restart|enable|disable|status|pid|
 crashes|logs|logf]`
 
+The S6RC\_DEBUG\_BOOT variable set to anything != "" allows to debug
+the boot sequence by setting the option `-1` when calling
+`s6-linux-init-maker`
+
 ### Bundles
 
 `S6RC_BUNDLES` contains a space separated list of bundle-names.
