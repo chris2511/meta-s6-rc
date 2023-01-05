@@ -1,0 +1,3 @@
+#!/bin/execlineb -S1
+
+test -c /dev/$1

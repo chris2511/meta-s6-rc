@@ -24,6 +24,8 @@ SRC_URI = "file://sysctl-printk.conf\
            file://hostname\
            file://vtlogin.run\
            file://vtlogin.check-instance\
+           file://getty.run\
+           file://getty.check-instance\
 "
 
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
@@ -86,7 +88,7 @@ S6RC_BUNDLE_default += "${@ 'vtlogin' if d.getVar('USE_VT') == '1' else ''}"
 
 S6RC_ONESHOTS = "hostname mount-procsysdev mount-temp mount-all \
 		mount-devpts networking udevadm hwclock postinsts \
-		ptest ifup-lo sysctl vtlogin \
+		ptest ifup-lo sysctl vtlogin getty \
 "
 
 S6RC_ONESHOT_hostname[up] = "/etc/init.d/hostname"
@@ -120,11 +122,14 @@ S6RC_ONESHOT_postinsts[dependencies] = "mount-all"
 S6RC_ONESHOT_ptest[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_ptest[up] = "foreground { redirfd -w 1 /ptest.log ptest-runner } poweroff"
 
+S6RC_ONESHOT_getty[up] = "rc-dynamic setup console@getty"
+S6RC_ONESHOT_getty[dependencies] = "mount-procsysdev sysctl"
+
 S6RC_ONESHOT_vtlogin[up] = "rc-dynamic setup 1@vtlogin 2@vtlogin 3@vtlogin"
 S6RC_ONESHOT_vtlogin[dependencies] = "mount-procsysdev sysctl"
 
 ################## Long running services with logger
-S6RC_LONGRUNS = "udevd klogd syslogd getty watchdog"
+S6RC_LONGRUNS = "udevd klogd syslogd watchdog"
 S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 /sbin/udevd"
 S6RC_LONGRUN_udevd[dependencies] = "mount-procsysdev"
 
@@ -139,9 +144,8 @@ S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { 
 S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_watchdog[flag-essential] = ""
 
-S6RC_LONGRUN_getty[run] = "fdmove -c 2 1 /bin/busybox.nosuid getty -L 0 console linux"
-S6RC_LONGRUN_getty[down-signal] = "SIGHUP"
-S6RC_LONGRUN_getty[dependencies] = "mount-procsysdev hostname sysctl"
 
-S6RC_TEMPLATES = "vtlogin"
+S6RC_TEMPLATES = "getty vtlogin"
+S6RC_TEMPLATE_getty[down-signal] = "SIGHUP"
+S6RC_TEMPLATE_getty-log[mode] = "per-instance"
 S6RC_TEMPLATE_vtlogin-log[mode] = "per-instance"

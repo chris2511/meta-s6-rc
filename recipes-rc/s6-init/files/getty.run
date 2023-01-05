@@ -1,0 +1,8 @@
+#!/bin/execlineb -P
+
+fdmove -c 2 1
+
+envfile env/instance
+importas CONSOLE INSTANCE
+
+getty -L 0 $CONSOLE linux
