@@ -10,7 +10,7 @@ SRC_URI += "\
 "
 
 PACKAGECONFIG:append = "openssl"
-RDEPENDS:${PN} = "openssl-bin"
+RDEPENDS:${PN}:append = " openssl-bin"
 
 do_install:append() {
   install -d ${D}${sysconfdir}/lighttpd.d ${D}${sysconfdir}/lighttpd
