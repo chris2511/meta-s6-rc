@@ -30,7 +30,7 @@ for SV in $@; do
 
     case "$updown" in
 	teardown)
-	    rm -f "${SV}"
+	    s6-svunlink . ${SV} && rm -rf ".${SV}"
 	    continue
     esac
     if [ -h "$SV" ]; then
@@ -42,7 +42,6 @@ for SV in $@; do
 	"${TEMPLATE_DIR}/data/check-instance" "$INSTANCE" ||
 	    usage "Invalid instance $INSTANCE"
     fi
-    rm -rf ".$SV"
     cp -a "/etc/s6-rc/templates/$TEMPLATE" ".$SV"
     mkdir -p ".$SV/env"
 
@@ -51,7 +50,5 @@ for SV in $@; do
 	TEMPLATE="$TEMPLATE"
 	EOF
 
-    ln -s ".$SV" "$SV"
+    s6-svlink . .${SV} ${SV}
 done
-
-exec s6-svscanctl -an .
