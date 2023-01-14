@@ -5,14 +5,12 @@ LICENSE = "ISC"
 SECTION = "base"
 DEPENDS = "skalibs execline"
 RDEPENDS:${PN} = "execline"
-LIC_FILES_CHKSUM = "file://COPYING;md5=41280dbee09dab174bbebae98f1fdb47"
+LIC_FILES_CHKSUM = "file://COPYING;md5=34f73ee8aab2e0ca56980313bfd7a7bb"
 
-SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz \
-           file://0001-s6-log-add-P-option-as-message-prefix-after-the-time.patch \
-           "
-SRC_URI[sha256sum] = "1cef7f7b3a7e01181fbb6fe8300e6ba422d9689007221c78af1f99528acb6c38"
+SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
+SRC_URI[sha256sum] = "9fb43690e6018d94733b4dc18cc6926f02454508a4dd86060c9b4b9d20dc8037"
 
-PV = "2.11.1.1"
+PV = "2.11.2.0"
 PR = "r0"
 
 inherit s6-skarnet
