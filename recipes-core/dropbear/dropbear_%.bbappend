@@ -13,6 +13,6 @@ S6RC_INITD_SYMLINKS = "${S6RC_LONGRUNS}"
 
 S6RC_ONESHOTS = "ssh-logout"
 S6RC_ONESHOT_ssh-logout[up] = ""
-S6RC_ONESHOT_ssh-logout[down] = "killall dropbear"
+S6RC_ONESHOT_ssh-logout[down] = "redirfd -w 2 /dev/null foreground { killall dropbear } exit 0"
 S6RC_ONESHOT_ssh-logout[dependencies] = "network"
 S6RC_ONESHOT_ssh-logout[bundles] = "default"
