@@ -1,0 +1,12 @@
+#!/bin/execlineb -P
+
+elglob -0 FILES /etc/sysctl.d/*.conf
+
+# "elglob" splits value in as many words as there are matches for the globbing pattern
+# Concatenate all words, as "test" can only process one argument
+backtick FILES_TEST { echo $FILES }
+importas -u FILES_TEST FILES_TEST
+if -t { test "$FILES_TEST" }
+
+# Use the split value for "sysctl"
+/sbin/sysctl -q -p $FILES
