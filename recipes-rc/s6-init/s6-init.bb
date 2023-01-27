@@ -106,6 +106,7 @@ S6RC_ONESHOT_mount-all[dependencies] = "mount-procsysdev mount-temp mount-devpts
 
 S6RC_ONESHOT_sysctl[dependencies] = "mount-procsysdev"
 S6RC_ONESHOT_sysctl[up] = "elglob -0 FILES /etc/sysctl.d/*.conf if -t { test "$FILES" } /sbin/sysctl -q -p $FILES"
+S6RC_ONESHOT_sysctl[up] = "elglob -0 FILES /etc/sysctl.d/*.conf forx -E FILE { $FILES } /sbin/sysctl -q -p $FILE"
 
 S6RC_ONESHOT_networking[dependencies] = "ifup-lo"
 S6RC_ONESHOT_networking[up] = "/sbin/ifup -a --ignore-errors"
