@@ -8,7 +8,7 @@ RDEPENDS:${PN} = "execline"
 LIC_FILES_CHKSUM = "file://COPYING;md5=28d25c958b3e78a070bd476755ead763"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "5c01e4e79416db6cd993ef8a9014628b8f1f0b6c643275988488512faa5404b1"
+SRC_URI[sha256sum] = "ac2fcf9004f07904592c5894e2c401e15bb027ecf37bcb8ea661e2a7993447be"
 
 PV = "0.1.6.2"
 
