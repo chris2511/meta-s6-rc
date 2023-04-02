@@ -8,7 +8,7 @@ RDEPENDS:${PN} = "s6 s6-linux-init execline"
 LIC_FILES_CHKSUM = "file://COPYING;md5=0280da83329b0ff1dfa49e1444f1cd97"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "9e750e63a19aaf65ef50cf6f691b8641f7d98857fa2e992b8186953fb32cad70"
-PV = "0.5.4.0"
+SRC_URI[sha256sum] = "d7268cab7c5423305cf9598a33d4fcdab8a315952b3ec80f79c85b8cb76158f6"
+PV = "0.5.4.1"
 
 inherit s6-skarnet

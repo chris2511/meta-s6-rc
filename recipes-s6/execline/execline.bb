@@ -7,10 +7,9 @@ DEPENDS = "skalibs"
 LIC_FILES_CHKSUM = "file://COPYING;md5=34f73ee8aab2e0ca56980313bfd7a7bb"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI += "file://0001-execline-multicall-make-sort-independent-of-locale.patch"
-SRC_URI[sha256sum] = "9365012558a1e3c019cafc6eb574b0f5890495fb02652f20efdd782d577b1601"
+SRC_URI[sha256sum] = "c8027fa70922d117cdee8cc20d277e38d03fd960e6d136d8cec32603d4ec238d"
 
-PV = "2.9.2.0"
+PV = "2.9.3.0"
 
 inherit s6-skarnet
 EXTRA_S6CONF = "--enable-multicall"

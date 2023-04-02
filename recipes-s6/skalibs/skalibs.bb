@@ -7,9 +7,9 @@ DEPENDS = ""
 LIC_FILES_CHKSUM = "file://COPYING;md5=34f73ee8aab2e0ca56980313bfd7a7bb"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "b3c48938c7fba4b19a8b0dce6e7a11427717a0901160bb62cfc6823f8ac86d92"
+SRC_URI[sha256sum] = "b272a1ab799f7fac44b9b4fb5ace78a9616b2fe4882159754b8088c4d8199e33"
 
-PV = "2.13.1.0"
+PV = "2.13.1.1"
 
 inherit s6-skarnet
 
