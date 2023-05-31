@@ -1,0 +1,30 @@
+From 03f8a5a626829dd1624e8cc8fccbcad8486a0c09 Mon Sep 17 00:00:00 2001
+From: Lennart Koschick <lk2601@icloud.com>
+Date: Wed, 31 May 2023 10:10:51 +0200
+Subject: [PATCH] Add S6 readiness notification
+
+---
+ svr-main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/svr-main.c b/svr-main.c
+index 9234361..3993b78 100644
+--- a/svr-main.c
++++ b/svr-main.c
+@@ -204,6 +204,13 @@ static void main_noinetd(int argc, char ** argv, const char* multipath) {
+ 		fclose(pidfile);
+ 	}
+ 
++	const char *notification = getenv("NOTIFICATION_FD");
++	if (notification && *notification > '2' && *notification <= '9') {
++		int fd = *notification - '0';
++		(void)!write(fd, "\n", 1);
++		close(fd);
++	}
++
+ 	/* incoming connection select loop */
+ 	for(;;) {
+ 
+-- 
+2.25.1
+

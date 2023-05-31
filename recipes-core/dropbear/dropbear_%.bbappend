@@ -1,7 +1,9 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 EXTRA_OECONF += "--disable-lastlog --disable-utmp --disable-wtmp"
-SRC_URI += "file://dropbear.run"
+SRC_URI += "file://0001-Add-S6-readiness-notification.patch \
+            file://dropbear.run \
+"
 
 inherit s6rc
 
