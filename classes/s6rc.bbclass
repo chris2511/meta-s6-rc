@@ -156,7 +156,7 @@ python do_s6rc_create_tree() {
 
             files = { "run": "#!/bin/execlineb -P\n\
 umask %s s6-setuidgid %s s6-log -d3 %s %s" %
-                        (log.get("umask", "0037"), log.get("user", "logger"),
+                        (log.get("umask", "0027"), log.get("user", "logger"),
                          log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
                          log.get("dir", "/var/log/" + longrun)),
                       "notification-fd": "3",
@@ -189,7 +189,7 @@ umask %s s6-setuidgid %s s6-log -d3 %s %s" %
 envfile ../env/instance\n\
 importas instance INSTANCE\n\
 umask %s s6-setuidgid %s foreground { mkdir -p %s } s6-log %s %s" %
-                    (log.get("umask", "0037"),
+                    (log.get("umask", "0027"),
                     log.get("user", "logger"),
                     logdir,
                     log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
@@ -204,7 +204,7 @@ umask %s s6-setuidgid %s foreground { mkdir -p %s } s6-log %s %s" %
                 files = { "run": "#!/bin/execlineb -P\n\
 s6-fdholder-retrieve /service/fdstore/s read:%s-log \
 umask %s s6-setuidgid %s s6-log -d3 %s %s" %
-                            (template, log.get("umask", "0037"),
+                            (template, log.get("umask", "0027"),
                             log.get("user", "logger"),
                             log.get("script", "T " + d.getVar('S6RC_LOG_SIZE', True)),
                             log.get("dir", "/var/log/" + template)),
