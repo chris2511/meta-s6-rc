@@ -138,6 +138,7 @@ S6RC_ONESHOT_fdstore-fill[dependencies] = "fdstore"
 S6RC_LONGRUNS = "udevd klogd syslogd watchdog fdstore"
 S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 /sbin/udevd"
 S6RC_LONGRUN_udevd[dependencies] = "mount-procsysdev"
+S6RC_LONGRUN_udevd[no-log] = "1"
 
 S6RC_LONGRUN_klogd[run] = "fdmove -c 2 1 redirfd -r 0 /proc/kmsg exec -c s6-setuidgid logger /bin/ucspilogd"
 S6RC_LONGRUN_klogd[dependencies] = "mount-procsysdev"
@@ -149,6 +150,7 @@ S6RC_LONGRUN_syslogd[run] = "fdmove -c 2 1 s6-envuidgid logger s6-socklog -U -d 
 S6RC_LONGRUN_watchdog[run] = "fdmove -c 2 1 ifelse { test -c /dev/watchdog0 } { /sbin/watchdog -F /dev/watchdog0 } s6-svc -d ."
 S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_watchdog[flag-essential] = ""
+S6RC_LONGRUN_watchdog[no-log] = "1"
 
 S6RC_LONGRUN_fdstore[run] = "s6-envuidgid -D 0:0:0 fdstore s6-fdholder-daemon -1 -U -i data/rules s"
 S6RC_LONGRUN_fdstore[notification-fd] = "1"
