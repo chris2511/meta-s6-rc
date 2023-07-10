@@ -152,8 +152,9 @@ S6RC_LONGRUN_watchdog[dependencies] = "mount-procsysdev"
 S6RC_LONGRUN_watchdog[flag-essential] = ""
 S6RC_LONGRUN_watchdog[no-log] = "1"
 
-S6RC_LONGRUN_fdstore[run] = "s6-envuidgid -D 0:0:0 fdstore s6-fdholder-daemon -1 -U -i data/rules s"
-S6RC_LONGRUN_fdstore[notification-fd] = "1"
+S6RC_LONGRUN_fdstore[run] = "s6-envuidgid -D 0:0:0 fdstore fdmove -c 1 3 s6-fdholder-daemon -1 -U -i data/rules s"
+S6RC_LONGRUN_fdstore[notification-fd] = "3"
+S6RC_LONGRUN_fdstore[flag-essential] = ""
 S6RC_LONGRUN_fdstore[no-log] = "1"
 
 do_s6rc_install_tree:append() {
