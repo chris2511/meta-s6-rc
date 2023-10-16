@@ -132,7 +132,7 @@ S6RC_ONESHOT_getty[dependencies] = "mount-procsysdev sysctl"
 S6RC_ONESHOT_vtlogin[up] = "rc-dynamic setup 1@vtlogin 2@vtlogin 3@vtlogin"
 S6RC_ONESHOT_vtlogin[dependencies] = "mount-procsysdev sysctl"
 
-S6RC_ONESHOT_fdstore-fill[dependencies] = "fdstore"
+S6RC_ONESHOT_fdstore-fill[dependencies] = "fdstore ifup-lo"
 
 ################## Long running services with logger
 S6RC_LONGRUNS = "udevd klogd syslogd watchdog fdstore"
