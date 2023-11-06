@@ -1,7 +1,7 @@
 foreground {
-  s6-tcpserver4-socketbinder 0.0.0.0 80
+  s6-tcpserver-socketbinder 0.0.0.0 80
   s6-fdholder-store /service/fdstore/s socket:lighttpd:tcp:80
 }
 
-s6-tcpserver4-socketbinder 0.0.0.0 443
+s6-tcpserver-socketbinder 0.0.0.0 443
 s6-fdholder-store /service/fdstore/s socket:lighttpd:tcp:443

@@ -131,7 +131,7 @@ declared in different layers.
 #### Filedescriptor storage
 
 Longruns may have an additional verb `filedescriptors`, which is an execline
-script, creating filedescriptors via `piperw` or `s6-tcpserver4-socketbinder`
+script, creating filedescriptors via `piperw` or `s6-tcpserver-socketbinder`
 and storing them in the new fd-holder service called `fdstore`. It canm be
 done as usual as inline declaration or by a `<longrun>.filedescriptors`
 file with `s6-fdholder-store /service/fdstore/s [socket|write|read]:<name>`.

@@ -7,9 +7,9 @@ DEPENDS = "skalibs"
 LIC_FILES_CHKSUM = "file://COPYING;md5=34f73ee8aab2e0ca56980313bfd7a7bb"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "c8027fa70922d117cdee8cc20d277e38d03fd960e6d136d8cec32603d4ec238d"
+SRC_URI[sha256sum] = "9ab55d561539dfa76ff4a97906fa995fc4a288e3de5225cb1a9d8fa9e9ebc49b"
 
-PV = "2.9.3.0"
+PV = "2.9.4.0"
 
 inherit s6-skarnet
 EXTRA_S6CONF = "--enable-multicall"

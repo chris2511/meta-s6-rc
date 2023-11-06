@@ -9,13 +9,11 @@ RDEPENDS:${PN} = "s6 execline"
 LIC_FILES_CHKSUM = "file://COPYING;md5=0280da83329b0ff1dfa49e1444f1cd97"
 
 SRC_URI = "http://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "ad483f35326579007e5a7e3cb9f1fd1177eaf71ec5c11c47cd784a042956a8ee"
+SRC_URI[sha256sum] = "11ae08d0a66210b5e56b6baee0f6b9b1b69fbedb05fda1285b115a31ca46c77f"
 
-PV = "1.1.1.0"
+PV = "1.1.2.0"
 
 inherit s6-skarnet
-
-SRC_URI += "file://s6-init-kbd.patch"
 
 PACKAGES =+ "${PN}-skel"
 FILES:${PN}-skel = "${sysconfdir}/s6-linux-init/skel"
