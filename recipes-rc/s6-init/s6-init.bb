@@ -113,7 +113,7 @@ S6RC_ONESHOT_networking[up] = "/sbin/ifup -a --ignore-errors"
 S6RC_ONESHOT_networking[down] = "/sbin/ifdown -a -X lo"
 
 S6RC_ONESHOT_udevadm[dependencies] = "mount-procsysdev udevd"
-S6RC_ONESHOT_udevadm[up] = "foreground { /sbin/udevadm trigger --action=add } /sbin/udevadm settle"
+S6RC_ONESHOT_udevadm[up] = "/sbin/udevadm settle"
 
 S6RC_ONESHOT_ifup-lo[up] = "/sbin/ifup --ignore-errors lo"
 
@@ -136,8 +136,9 @@ S6RC_ONESHOT_fdstore-fill[dependencies] = "fdstore ifup-lo"
 
 ################## Long running services with logger
 S6RC_LONGRUNS = "udevd klogd syslogd watchdog fdstore"
-S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 /sbin/udevd"
+S6RC_LONGRUN_udevd[run] = "fdmove -c 2 1 s6-notifyoncheck -c "/sbin/udevadm trigger --action=add" /sbin/udevd"
 S6RC_LONGRUN_udevd[dependencies] = "mount-procsysdev"
+S6RC_LONGRUN_udevd[notification-fd] = "3"
 S6RC_LONGRUN_udevd[no-log] = "1"
 
 S6RC_LONGRUN_klogd[run] = "fdmove -c 2 1 redirfd -r 0 /proc/kmsg exec -c s6-setuidgid logger /bin/ucspilogd"
