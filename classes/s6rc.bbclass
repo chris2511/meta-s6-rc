@@ -12,6 +12,8 @@ USERADD_PARAM:${PN}:prepend = " --system --home ${localstatedir}/log \
                             --no-create-home --shell /bin/false \
                             --user-group logger;"
 
+S6RC_TIMEOUT_KILL ?= "10000"
+
 # This class and its use is documented in the README.md
 python do_s6rc_create_tree() {
     from pathlib import Path
@@ -148,6 +150,10 @@ python do_s6rc_create_tree() {
             logname = longrun + "-log"
             files["producer-for"] = logname
 
+        if not "timeout-kill" in files:
+            timeout_kill = d.getVar("S6RC_TIMEOUT_KILL")
+            if int(timeout_kill) > 0:
+                files["timeout-kill"] = timeout_kill
         write_verbatim(workdir, tree, longrun, files, valid_files, [ "run" ])
         # Automatic log-service generation
         if do_logger:
