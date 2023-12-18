@@ -15,9 +15,9 @@ inherit s6-skarnet
 
 do_configure() {
     ${S}/configure --with-sysdep-devurandom=y --enable-static \
-		--libdir=/usr/lib --enable-static-libc --prefix=${base_prefix}
+		--libdir=${libdir} --enable-static-libc --prefix=${root_prefix}
 }
 
 do_configure:class-native() {
-    ${S}/configure --prefix=${base_prefix} --includedir=${prefix}/include
+    ${S}/configure --prefix=${root_prefix} --includedir=${includedir}
 }

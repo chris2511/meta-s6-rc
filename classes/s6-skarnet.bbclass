@@ -1,4 +1,4 @@
-FILES:${PN} += "/libexec"
+FILES:${PN} += "${libexecdir}"
 BBCLASSEXTEND = "native"
 
 do_configure:prepend() {
@@ -8,17 +8,17 @@ do_configure:prepend() {
 do_configure() {
   ${S}/configure --enable-static --libdir=${prefix}/lib \
                  ${@'--enable-static-libc' if "${TCLIBC}" == "musl" else ''}\
-                 --includedir=${prefix}/include --prefix=${base_prefix} \
-                 --with-include=${STAGING_DIR_TARGET}/${prefix}/include \
-                 --with-lib=${STAGING_DIR_TARGET}/${prefix}/lib \
-                 --with-sysdeps=${STAGING_DIR_TARGET}/usr/lib/skalibs/sysdeps \
-                 --shebangdir=/bin --libexecdir=/usr/libexec ${EXTRA_S6CONF}
+                 --includedir=${includedir} --prefix=${root_prefix} \
+                 --with-include=${STAGING_INCDIR} \
+                 --with-lib=${STAGING_BASELIBDIR} \
+                 --with-sysdeps=${STAGING_LIBDIR}/skalibs/sysdeps \
+                 --shebangdir=${base_bindir} --libexecdir=${libexecdir} ${EXTRA_S6CONF}
 }
 
 do_configure:class-native() {
   ${S}/configure --enable-static --enable-shared --libdir=${prefix}/lib \
-                 --includedir=${prefix}/include --prefix=${base_prefix} \
-                 --shebangdir=/bin --libexecdir=/usr/libexec ${EXTRA_S6CONF}
+                 --includedir=${includedir} --prefix=${root_prefix} \
+                 --shebangdir=${base_bindir_native} --libexecdir=${libexecdir_native} ${EXTRA_S6CONF}
 }
 
 do_compile() {

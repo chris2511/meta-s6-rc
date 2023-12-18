@@ -15,5 +15,8 @@ PV = "1.1.2.0"
 
 inherit s6-skarnet
 
+SKELDIR = "${sysconfdir}/s6-linux-init/skel"
+EXTRA_S6CONF = "--skeldir=${SKELDIR}"
+
 PACKAGES =+ "${PN}-skel"
-FILES:${PN}-skel = "${sysconfdir}/s6-linux-init/skel"
+FILES:${PN}-skel = "${SKELDIR}"
