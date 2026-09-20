@@ -7,9 +7,9 @@ DEPENDS = "skalibs execline s6-linux-init s6 s6-rc util-linux"
 RDEPENDS:${PN} = ""
 LIC_FILES_CHKSUM = "file://COPYING;md5=bf2e714ed36534bb7976bdbae107223b"
 
-SRC_URI = "https://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "7660f881fc2c923446083d6878dead6a8405fdedb3645a87e188d679ccc8c628"
+SRC_URI = "${S6_DOWNLOAD_URL}/${BPN}/${BPN}-${PV}.tar.gz"
+SRC_URI[sha256sum] = "ed7bba6f2c13dd16ebf17fda0d482f4ba4848d80f5b4d7edd22d8b60a869f994"
 
-PV = "0.0.1.0"
+PV = "0.1.0.0"
 
 inherit s6-skarnet
