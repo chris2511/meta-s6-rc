@@ -1,0 +1,35 @@
+name: Bitbake Build
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+    - name: Update package lists
+      run: sudo apt-get update
+
+    - name: Install Yocto Dependencies
+      run: sudo apt-get install -y build-essential chrpath cpio debianutils diffstat file gawk gcc git iputils-ping libacl1 libcrypt-dev locales python3 python3-git python3-jinja2 python3-pexpect python3-pip python3-subunit socat texinfo unzip wget xz-utils zstd
+
+    - name: Configure Locales UTF-8
+      run: |
+        echo "en_US.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
+        sudo locale-gen
+        echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
+    - name: Compile with Bitbake
+      run: |
+        cd ..
+        git clone https://git.openembedded.org/bitbake
+        bitbake/bin/bitbake-setup init meta-s6-rc/setup.conf.json --non-interactive
+        . bitbake-builds/s6-rc-build/build/init-build-env
+        bitbake core-image-minimal
