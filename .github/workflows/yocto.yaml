@@ -32,4 +32,4 @@ jobs:
         git clone https://git.openembedded.org/bitbake
         bitbake/bin/bitbake-setup init meta-s6-rc/setup.conf.json --non-interactive
         . bitbake-builds/s6-rc-build/build/init-build-env
-        bitbake core-image-minimal
+        bitbake packagegroup-s6-rc
