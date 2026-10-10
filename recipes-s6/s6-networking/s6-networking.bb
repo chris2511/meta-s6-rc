@@ -7,9 +7,9 @@ DEPENDS = "skalibs execline s6 s6-dns"
 RDEPENDS:${PN} = "s6-dns"
 LIC_FILES_CHKSUM = "file://COPYING;md5=ea5b4b9a81f21793db1a769bee7302f3"
 
-SRC_URI = "https://skarnet.org/software/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "679f8652d85be343dac1f076497cd36ca8c56400948780f85dc64e34055e2c1b"
+SRC_URI = "${S6_DOWNLOAD_URL}/${BPN}/${BPN}-${PV}.tar.gz"
+SRC_URI[sha256sum] = "6f011c33ba0586ce58feee0cf854a0b087e9082fdbd24abb786148463830f341"
 
-PV = "2.7.2.1"
+PV = "2.8.0.1"
 
 inherit s6-skarnet

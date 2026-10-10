@@ -5,18 +5,23 @@ This layer introduces [s6-rc](https://skarnet.org/software/s6-rc) as init system
 ## Quickstart
 
 ```sh
-git clone git://git.yoctoproject.org/poky
-(cd poky && git checkout -b kirkstone origin/kirkstone)
-git clone https://github.com/chris2511/meta-s6-rc.git
-. poky/oe-init-build-env
-bitbake-layers add-layer ../meta-s6-rc
-TCLIBC = "musl" INIT_MANAGER = "s6" bitbake core-image-minimal
+git clone https://git.openembedded.org/bitbake
+bitbake/bin/bitbake-setup init meta-s6-rc/setup.conf.json --non-interactive
+
+# Initialize environment and build
+. bitbake-builds/s6-rc-build/build/init-build-env
+bitbake core-image-minimal
+
+# Generate TAP devices as root
+sudo `which runqemu-gen-tapdevs` `id -u` 2
+
+# Run the image
 runqemu serialstdio nographic kvm
 ```
 
-Or as usual put them into your conf/local.conf:
+Or as usual put the new init manager into your conf/local.conf:
 ```
-TCLIBC = "musl"
+TCLIBC = "musl" # optional, glibc works, too.
 INIT_MANAGER = "s6"
 ```
 
