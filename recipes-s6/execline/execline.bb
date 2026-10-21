@@ -8,9 +8,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=ea5b4b9a81f21793db1a769bee7302f3"
 RPROVIDES:${PN} += "${@bb.utils.contains('DISTRO_FEATURES', 'usrmerge', '/bin/execlineb', '', d)}"
 
 SRC_URI = "${S6_DOWNLOAD_URL}/${BPN}/${BPN}-${PV}.tar.gz"
-SRC_URI[sha256sum] = "908ed4db3a6b3a23a205d8fd4cf2a71089156f2aeae0f54656045aafad2dee32"
+SRC_URI[sha256sum] = "561be2ce578604644e2263a889bbdf4736e7980401ee88556a7f9017c166dbab"
 
-PV = "2.9.9.2"
+PV = "2.10.0.0"
 
 inherit s6-skarnet
 EXTRA_S6CONF = "--enable-multicall"
